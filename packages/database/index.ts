@@ -11,3 +11,5 @@ declare global {
 export const database = new PrismaClient({
   // If you have any specific configurations for Accelerate, add them here
 });
+
+export * from '@prisma/client'

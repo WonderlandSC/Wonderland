@@ -4,5 +4,7 @@
       "path": "/cron/keep-alive",
       "schedule": "0 0 * * *"
     }
-  ]
+  ],
+  "buildCommand": "cd ../../packages/database && pnpm run build && cd ../../apps/api && next build",
+  "installCommand": "cd ../.. && pnpm install"
 }
