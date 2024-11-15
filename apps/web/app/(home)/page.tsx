@@ -10,9 +10,9 @@ import { Stats } from './components/stats';
 import { Testimonials } from './components/testimonials';
 
 const meta = {
-  title: 'From zero to production in minutes.',
+  title: 'Echo Ray',
   description:
-    "next-forge is a production-grade boilerplate for modern Next.js apps. It's designed to have everything you need to build your new SaaS app as quick as possible. Authentication, billing, analytics, SEO, and more. It's all here.",
+    "Echo Ray is a full-service digital agency that specializes in creating a wide range of web applications, including portfolios, blogs, document management systems, databases, and AI integrations.",
 };
 
 export const metadata: Metadata = createMetadata(meta);

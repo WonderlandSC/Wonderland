@@ -5,6 +5,11 @@ import type { NextConfig } from 'next';
 
 let nextConfig: NextConfig = { ...config };
 
+
+  nextConfig.images = {
+    domains: ['cdn.jsdelivr.net'], // Allow the specified hostname
+  };
+
 if (process.env.NODE_ENV === 'production') {
   const redirects: NextConfig['redirects'] = async () => [
     {

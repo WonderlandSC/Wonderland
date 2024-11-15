@@ -1,18 +1,23 @@
 {
-  "$schema": "https://mintlify.com/schema.json",
+  "$schema": "https://leaves.mintlify.com/schema.json",
   "name": "Starter Kit",
+  "theme": "prism",
   "logo": {
     "dark": "/logo/dark.svg",
     "light": "/logo/light.svg"
   },
   "favicon": "/favicon.svg",
   "colors": {
-    "primary": "#0D9373",
-    "light": "#07C983",
-    "dark": "#0D9373",
+    "primary": "#7cdb00",
+    "light": "#95eb00",
+    "dark": "#95eb00",
     "anchors": {
-      "from": "#0D9373",
-      "to": "#07C983"
+      "from": "#95eb00",
+      "to": "#b3f700"
+    },
+        "background": {
+      "dark": "#000000",
+      "light": "#ffffff"
     }
   },
   "topbarLinks": [
@@ -23,7 +28,9 @@
   ],
   "topbarCtaButton": {
     "name": "Dashboard",
-    "url": "https://dashboard.mintlify.com"
+    "url": "https://dashboard.mintlify.com",
+    "style": "roundedRectangle",
+    "arrow": true
   },
   "tabs": [
     {

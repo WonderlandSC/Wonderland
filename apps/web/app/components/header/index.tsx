@@ -16,7 +16,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 
 import Image from 'next/image';
-import Logo from './logo.svg';
+import Logo from './logo1.svg';
 
 export const Header = () => {
   const navigationItems = [
@@ -116,14 +116,15 @@ export const Header = () => {
           </NavigationMenu>
         </div>
         <div className="flex items-center gap-2 lg:justify-center">
+          <Link href="/">
           <Image
-            src={Logo}
+            src="https://cdn.jsdelivr.net/gh/Ethereumistic/echo-ray-assets/logo/echoray-dark.png"
             alt="Logo"
-            width={24}
-            height={24}
+            width={200}
+            height={100}
             className="dark:invert"
           />
-          <p className="whitespace-nowrap font-semibold">next-forge</p>
+          </Link>
         </div>
         <div className="flex w-full justify-end gap-4">
           <Button variant="ghost" className="hidden md:inline" asChild>
@@ -134,7 +135,7 @@ export const Header = () => {
           <Button variant="outline" asChild>
             <Link href={`${env.NEXT_PUBLIC_APP_URL}/sign-in`}>Sign in</Link>
           </Button>
-          <Button asChild>
+          <Button variant="default" asChild>
             <Link href={`${env.NEXT_PUBLIC_APP_URL}/sign-up`}>Get started</Link>
           </Button>
         </div>
