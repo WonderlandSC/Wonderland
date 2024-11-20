@@ -12,7 +12,7 @@ import { Testimonials } from './components/testimonials';
 const meta = {
   title: 'Wonderland',
   description:
-    "Wonderland is a full-service digital agency that specializes in creating a wide range of web applications, including portfolios, blogs, document management systems, databases, and AI integrations.",
+    "Wonderland is a full service digital agency that specializes in creating a wide range of web applications, including portfolios, blogs, document management systems, databases, and AI integrations.",
 };
 
 export const metadata: Metadata = createMetadata(meta);
