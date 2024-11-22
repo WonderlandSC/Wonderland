@@ -43,6 +43,7 @@ import {
   FrameIcon,
   GraduationCapIcon,
   LifeBuoyIcon,
+  Link,
   LucideIcon,
   MapIcon,
   MoreHorizontalIcon,
@@ -55,7 +56,9 @@ import {
   UsersIcon,
 } from 'lucide-react';
 import type { ReactNode } from 'react';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
+import { usePathname } from 'next/navigation';
+import Image from 'next/image';
 
 type GlobalSidebarProperties = {
   readonly children: ReactNode;
@@ -65,6 +68,7 @@ type GlobalSidebarProperties = {
 type NavSubItem = {
   title: string;
   url: string;
+  avatar: string;
 };
 
 type NavItem = {
@@ -199,70 +203,78 @@ const data = {
   ],
 };
 
-// Create separate navigation data for different roles
-const getNavItems = (role?: OrganizationMembershipRole, orgMembers: any[] = []): NavItem[] => {
-  const adminNav: NavItem[] = [
-    {
-      title: 'Dashboard',
-      url: '/dashboard',
-      icon: PieChartIcon,
-      isActive: true,
-    },
-    {
-      title: 'Students',
-      url: '/students',
-      icon: UsersIcon,
-      items: orgMembers.map(member => ({
-        title: `${member.publicUserData.firstName} ${member.publicUserData.lastName}`,
-        url: `/students/${member.publicUserData.userId}`,
-      })),
-    },
-    {
-      title: 'Grades',
-      url: '/grades',
-      icon: ClipboardListIcon,
-    },
-  ];
 
-  const studentNav: NavItem[] = [
-    {
-      title: 'My Dashboard',
-      url: '/dashboard',
-      icon: PieChartIcon,
-      isActive: true,
-    },
-    {
-      title: 'My Grades',
-      url: '/grades',
-      icon: GraduationCapIcon,
-    },
-  ];
-
-  return role === 'org:admin' ? adminNav : studentNav;
-};
 
 export const GlobalSidebar = ({ children, userRole }: GlobalSidebarProperties) => {
   const sidebar = useSidebar();
   const { organization } = useOrganization();
   const [orgMembers, setOrgMembers] = React.useState<any[]>([]);
-  // Move navItems after orgMembers is updated
+  const pathname = usePathname(); // Move the hook inside the component
+
+  const getNavItems = (role?: OrganizationMembershipRole, orgMembers: any[] = []): NavItem[] => {
+const adminNav: NavItem[] = [
+  {
+    title: 'Dashboard',
+    url: '/dashboard',
+    icon: PieChartIcon,
+    isActive: pathname === '/dashboard',
+  },
+  {
+    title: 'Students',
+    url: '/students',
+    icon: UsersIcon,
+    isActive: pathname.startsWith('/students'),
+    items: orgMembers
+      .filter(member => member.role !== 'org:admin')
+      .map(member => ({
+        avatar: member.publicUserData.imageUrl,
+        title: `${member.publicUserData.firstName} ${member.publicUserData.lastName}`,
+        url: `/students/${member.id}`,
+      })),
+  },
+      {
+        title: 'Grades',
+        url: '/grades',
+        icon: ClipboardListIcon,
+        isActive: pathname === '/grades',
+      },
+    ];
+
+    const studentNav: NavItem[] = [
+      {
+        title: 'My Dashboard',
+        url: '/dashboard',
+        icon: PieChartIcon,
+        isActive: pathname === '/dashboard',
+      },
+      {
+        title: 'My Grades',
+        url: '/grades',
+        icon: GraduationCapIcon,
+        isActive: pathname === '/grades',
+      },
+    ];
+
+    return role === 'org:admin' ? adminNav : studentNav;
+  };
+
   const navItems = getNavItems(userRole, orgMembers);
-
-  React.useEffect(() => {
-    const fetchOrgMembers = async () => {
-      if (organization) {
-        try {
-          const members = await organization.getMemberships();
-          setOrgMembers(members.data);
-        } catch (error) {
-          console.error('Failed to fetch organization members', error);
-        }
+  
+React.useEffect(() => {
+  const fetchOrgMembers = async () => {
+    if (organization) {
+      try {
+        const members = await organization.getMemberships();
+        console.log('Organization members:', members.data); // Add this log
+        setOrgMembers(members.data);
+      } catch (error) {
+        console.error('Failed to fetch organization members', error);
       }
-    };
+    }
+  };
 
-    fetchOrgMembers();
-  }, [organization]);
-
+  fetchOrgMembers();
+}, [organization]);
   return (
     <>
       <Sidebar variant="inset">
@@ -316,6 +328,7 @@ export const GlobalSidebar = ({ children, userRole }: GlobalSidebarProperties) =
                               <SidebarMenuSubItem key={subItem.title}>
                                 <SidebarMenuSubButton asChild>
                                   <a href={subItem.url}>
+                                    <Image className='rounded-full' src={subItem.avatar} alt={subItem.title} width={20} height={20} />
                                     <span>{subItem.title}</span>
                                   </a>
                                 </SidebarMenuSubButton>

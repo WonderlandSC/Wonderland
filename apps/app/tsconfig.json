@@ -9,5 +9,5 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts"
-  ]
+, ".next/types/app/(authenticated)/students/page.tsx"  ]
 }
