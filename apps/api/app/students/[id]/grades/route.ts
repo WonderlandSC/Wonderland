@@ -20,12 +20,12 @@ export async function OPTIONS() {
 
 export async function GET(
   request: NextRequest,
-  context: { params: { id: string } }
+  { params }: { params: { id: string } } // Changed this line
 ) {
   try {
     const grades = await database.grade.findMany({
       where: {
-        studentId: context.params.id,
+        studentId: params.id, // Updated to use params directly
       },
       include: {
         student: true,
@@ -42,9 +42,10 @@ export async function GET(
   }
 }
 
+// Also update POST handler
 export async function POST(
   request: NextRequest,
-  context: { params: { id: string } }
+  { params }: { params: { id: string } } // Changed this line
 ) {
   try {
     const { subject, value, description } = await request.json();
@@ -59,7 +60,7 @@ export async function POST(
 
     // Verify student exists
     const student = await database.student.findUnique({
-      where: { id: context.params.id },
+      where: { id: params.id }, // Updated to use params directly
     });
 
     if (!student) {
@@ -75,7 +76,7 @@ export async function POST(
         subject,
         value,
         description,
-        studentId: context.params.id,
+        studentId: params.id, // Updated to use params directly
       },
       include: {
         student: true,
