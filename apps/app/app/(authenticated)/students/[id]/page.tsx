@@ -5,16 +5,16 @@ import { notFound } from 'next/navigation';
 import { clerkClient } from '@clerk/nextjs/server';
 import { getStudentData } from '../utils';
 
-export async function generateMetadata({ params }: { params: { id: string } }) {
-  const { student } = await getStudentData(params.id);
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
+  const { student } = await getStudentData((await params).id);
 
   return {
     title: `${student.firstName} ${student.lastName} - Wonderland`,
   };
 }
 
-const StudentPage = async ({ params }: { params: { id: string } }) => {
-  const { student } = await getStudentData(params.id);
+const StudentPage = async ({ params }: { params: Promise<{ id: string }> }) => {
+  const { student } = await getStudentData((await params).id); 
 
   return (
     <div className="space-y-6">
