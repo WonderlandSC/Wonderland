@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider        = "prisma-client-js"
   previewFeatures = ["driverAdapters"]
@@ -12,33 +9,25 @@ datasource db {
   relationMode = "prisma"
 }
 
-// This is a stub model.
-// Delete it and add your own Prisma models.
-model Page {
-  id    Int     @id @default(autoincrement())
-  email String  @unique
-  name  String?
-}
-
 model Student {
-  id             String   @id
+  id             String   @id @default(cuid())
   firstName      String
   lastName       String
-  email          String   @unique
-  organizationId String
+  email          String
   clerkId        String   @unique
+  organizationId String
   grades         Grade[]
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 }
 
 model Grade {
-  id          Int      @id @default(autoincrement())
-  value       Float
+  id          String   @id @default(cuid())
   subject     String
+  value       Float
   description String?
   studentId   String
-  student     Student  @relation(fields: [studentId], references: [id])
+  student     Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 

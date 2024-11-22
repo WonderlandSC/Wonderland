@@ -15,7 +15,7 @@ export function SyncStudentsButton() {
     
     setIsSyncing(true);
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_WEB_URL}/students/sync`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/students/sync`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

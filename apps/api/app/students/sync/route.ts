@@ -21,7 +21,13 @@ export async function OPTIONS() {
 }
 
 export async function POST(request: NextRequest) {
-
+  // Add CORS headers to the response
+  if (request.method === 'OPTIONS') {
+    return new NextResponse(null, {
+      status: 204,
+      headers: corsHeaders,
+    });
+  }
 
   try {
     const { organizationId } = await request.json();

@@ -1,44 +1,21 @@
-import { auth, OrganizationMembership } from '@clerk/nextjs/server';
-import { Card, CardContent, CardHeader, CardTitle } from '@repo/design-system/components/ui/card';
-import { Button } from '@repo/design-system/components/ui/button';
-import { notFound } from 'next/navigation';
-import { clerkClient } from '@clerk/nextjs/server';
-import { getStudentData } from '../utils';
+import { Suspense } from 'react';
+import StudentClientPage from './StudentClientPage';
 
-export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
-  const { student } = await getStudentData((await params).id);
-
-  return {
-    title: `${student.firstName} ${student.lastName} - Wonderland`,
-  };
+interface Props {
+  params: {
+    id: string;
+  }
 }
 
-const StudentPage = async ({ params }: { params: Promise<{ id: string }> }) => {
-  const { student } = await getStudentData((await params).id); 
-
+export default async function StudentGradesPage({ params }: Props) {
+  const { id } = params;
+  
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-3xl font-bold">
-          {student.firstName} {student.lastName}
-        </h2>
-        <div className="flex gap-4">
-          <Button>Add Grade</Button>
-          <Button variant="outline">Edit Grade</Button>
-          <Button variant="destructive">Delete Grade</Button>
-        </div>
-      </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Grades</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-muted-foreground">No grades yet</p>
-        </CardContent>
-      </Card>
+    <div className="container mx-auto py-6">
+      <h1 className="text-2xl font-bold mb-6">Student Grades</h1>
+      <Suspense fallback={<div>Loading...</div>}>
+        <StudentClientPage studentId={id} />
+      </Suspense>
     </div>
   );
-};
-
-export default StudentPage;
+}
