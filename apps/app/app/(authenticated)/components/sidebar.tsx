@@ -1,6 +1,7 @@
 'use client';
 
-import { OrganizationSwitcher, UserButton } from '@clerk/nextjs';
+import { OrganizationSwitcher, UserButton, useOrganization } from '@clerk/nextjs';
+import { OrganizationMembershipRole } from '@clerk/nextjs/server';
 import { ModeToggle } from '@repo/design-system/components/mode-toggle';
 import {
   Collapsible,
@@ -37,9 +38,12 @@ import {
   BookOpenIcon,
   BotIcon,
   ChevronRightIcon,
+  ClipboardListIcon,
   FolderIcon,
   FrameIcon,
+  GraduationCapIcon,
   LifeBuoyIcon,
+  LucideIcon,
   MapIcon,
   MoreHorizontalIcon,
   PieChartIcon,
@@ -48,11 +52,27 @@ import {
   ShareIcon,
   SquareTerminalIcon,
   Trash2Icon,
+  UsersIcon,
 } from 'lucide-react';
 import type { ReactNode } from 'react';
+import React, { useEffect, useState } from 'react';
 
 type GlobalSidebarProperties = {
   readonly children: ReactNode;
+  readonly userRole?: OrganizationMembershipRole;
+};
+
+type NavSubItem = {
+  title: string;
+  url: string;
+};
+
+type NavItem = {
+  title: string;
+  url: string;
+  icon: LucideIcon;
+  isActive?: boolean;
+  items?: NavSubItem[];
 };
 
 const data = {
@@ -179,8 +199,69 @@ const data = {
   ],
 };
 
-export const GlobalSidebar = ({ children }: GlobalSidebarProperties) => {
+// Create separate navigation data for different roles
+const getNavItems = (role?: OrganizationMembershipRole, orgMembers: any[] = []): NavItem[] => {
+  const adminNav: NavItem[] = [
+    {
+      title: 'Dashboard',
+      url: '/dashboard',
+      icon: PieChartIcon,
+      isActive: true,
+    },
+    {
+      title: 'Students',
+      url: '/students',
+      icon: UsersIcon,
+      items: orgMembers.map(member => ({
+        title: `${member.publicUserData.firstName} ${member.publicUserData.lastName}`,
+        url: `/students/${member.publicUserData.userId}`,
+      })),
+    },
+    {
+      title: 'Grades',
+      url: '/grades',
+      icon: ClipboardListIcon,
+    },
+  ];
+
+  const studentNav: NavItem[] = [
+    {
+      title: 'My Dashboard',
+      url: '/dashboard',
+      icon: PieChartIcon,
+      isActive: true,
+    },
+    {
+      title: 'My Grades',
+      url: '/grades',
+      icon: GraduationCapIcon,
+    },
+  ];
+
+  return role === 'org:admin' ? adminNav : studentNav;
+};
+
+export const GlobalSidebar = ({ children, userRole }: GlobalSidebarProperties) => {
   const sidebar = useSidebar();
+  const { organization } = useOrganization();
+  const [orgMembers, setOrgMembers] = React.useState<any[]>([]);
+  // Move navItems after orgMembers is updated
+  const navItems = getNavItems(userRole, orgMembers);
+
+  React.useEffect(() => {
+    const fetchOrgMembers = async () => {
+      if (organization) {
+        try {
+          const members = await organization.getMemberships();
+          setOrgMembers(members.data);
+        } catch (error) {
+          console.error('Failed to fetch organization members', error);
+        }
+      }
+    };
+
+    fetchOrgMembers();
+  }, [organization]);
 
   return (
     <>
@@ -204,9 +285,11 @@ export const GlobalSidebar = ({ children }: GlobalSidebarProperties) => {
         </SidebarHeader>
         <SidebarContent>
           <SidebarGroup>
-            <SidebarGroupLabel>Platform</SidebarGroupLabel>
+            <SidebarGroupLabel>
+              {userRole === 'org:admin' ? 'Teacher Dashboard' : 'Student Dashboard'}
+            </SidebarGroupLabel>
             <SidebarMenu>
-              {data.navMain.map((item) => (
+              {navItems.map((item: NavItem) => (
                 <Collapsible
                   key={item.title}
                   asChild
@@ -229,7 +312,7 @@ export const GlobalSidebar = ({ children }: GlobalSidebarProperties) => {
                         </CollapsibleTrigger>
                         <CollapsibleContent>
                           <SidebarMenuSub>
-                            {item.items?.map((subItem) => (
+                            {item.items.map((subItem: NavSubItem) => (
                               <SidebarMenuSubItem key={subItem.title}>
                                 <SidebarMenuSubButton asChild>
                                   <a href={subItem.url}>

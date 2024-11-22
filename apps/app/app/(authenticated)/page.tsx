@@ -11,8 +11,8 @@ import { Separator } from '@repo/design-system/components/ui/separator';
 import { SidebarTrigger } from '@repo/design-system/components/ui/sidebar';
 import type { Metadata } from 'next';
 
-const title = 'Acme Inc';
-const description = 'My application.';
+const title = 'Wonderland';
+const description = 'Wonderland grading dashboard.';
 
 export const metadata: Metadata = {
   title,

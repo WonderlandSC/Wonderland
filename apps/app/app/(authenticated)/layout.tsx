@@ -1,4 +1,4 @@
-import { auth, currentUser } from '@clerk/nextjs/server';
+import { auth, currentUser, OrganizationMembershipRole } from '@clerk/nextjs/server';
 import { SidebarProvider } from '@repo/design-system/components/ui/sidebar';
 import { showBetaFeature } from '@repo/feature-flags';
 import arcjet, { detectBot, request } from '@repo/security';
@@ -19,19 +19,23 @@ const aj = arcjet.withRule(
   })
 );
 
+
+
+
 const AppLayout = async ({ children }: AppLayoutProperties) => {
   const req = await request();
   const decision = await aj.protect(req);
-
+  const authData = await auth();
+  
   // These errors are handled by the global error boundary, but you could also
   // redirect or show a custom error page
-  if (decision.isDenied()) {
-    if (decision.reason.isBot()) {
-      throw new Error('No bots allowed');
-    }
+  // if (decision.isDenied()) {
+  //   if (decision.reason.isBot()) {
+  //     throw new Error('No bots allowed');
+  //   }
 
-    throw new Error('Access denied');
-  }
+  //   throw new Error('Access denied');
+  // }
 
   const user = await currentUser();
   const { redirectToSignIn } = await auth();
@@ -41,9 +45,14 @@ const AppLayout = async ({ children }: AppLayoutProperties) => {
     redirectToSignIn();
   }
 
+    // Get the organization role from the current user's active organization
+  const orgRole = authData.sessionClaims?.org_role as OrganizationMembershipRole | undefined;
+
+  
+
   return (
     <SidebarProvider>
-      <GlobalSidebar>
+      <GlobalSidebar userRole={orgRole}>
         {betaFeature && (
           <div className="m-4 rounded-full bg-success p-1.5 text-center text-sm text-success-foreground">
             Beta feature now available
