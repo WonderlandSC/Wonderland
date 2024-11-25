@@ -11,6 +11,12 @@ const corsHeaders = {
   'Access-Control-Max-Age': '86400',
 } as const;
 
+type RouteContext = {
+  params: {
+    id: string;
+  };
+};
+
 export async function OPTIONS() {
   return new NextResponse(null, {
     status: 204,
@@ -20,7 +26,7 @@ export async function OPTIONS() {
 
 export async function GET(
   request: NextRequest,
-  context: { params: { id: string } }  // Changed this line
+  context: RouteContext  // Using the correct type
 ) {
   try {
     const grades = await database.grade.findMany({
@@ -44,7 +50,7 @@ export async function GET(
 
 export async function POST(
   request: NextRequest,
-  context: { params: { id: string } }  // Changed this line
+  context: RouteContext  // Using the correct type
 ) {
   try {
     const { subject, value, description } = await request.json();
