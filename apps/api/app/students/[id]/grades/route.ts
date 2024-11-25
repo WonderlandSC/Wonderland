@@ -4,7 +4,7 @@ import { database } from '@repo/database';
 const corsHeaders = {
   'Access-Control-Allow-Origin': process.env.NODE_ENV === 'development' 
     ? 'http://localhost:3000'
-    : process.env.NEXT_PUBLIC_APP_URL || 'https://wonderland-app-cyan.vercel.app',
+    : process.env.NEXT_PUBLIC_APP_URL || 'https://your-production-url.com',
   'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type, Authorization',
   'Access-Control-Allow-Credentials': 'true',
@@ -20,12 +20,12 @@ export async function OPTIONS() {
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }  // Changed this line
+  context: { params: { id: string } }  // Changed this line
 ) {
   try {
     const grades = await database.grade.findMany({
       where: {
-        studentId: params.id,
+        studentId: context.params.id,
       },
       include: {
         student: true,
@@ -44,7 +44,7 @@ export async function GET(
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }  // Changed this line
+  context: { params: { id: string } }  // Changed this line
 ) {
   try {
     const { subject, value, description } = await request.json();
@@ -59,7 +59,7 @@ export async function POST(
 
     // Verify student exists
     const student = await database.student.findUnique({
-      where: { id: params.id },
+      where: { id: context.params.id },
     });
 
     if (!student) {
@@ -75,7 +75,7 @@ export async function POST(
         subject,
         value,
         description,
-        studentId: params.id,
+        studentId: context.params.id,
       },
       include: {
         student: true,
