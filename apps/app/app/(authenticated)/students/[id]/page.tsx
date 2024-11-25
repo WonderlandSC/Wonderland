@@ -2,10 +2,8 @@ import { Suspense } from 'react';
 import StudentClientPage from './StudentClientPage';
 import { getStudentData } from '../utils';
 
-interface Props {
-  params: {
-    id: string;
-  };
+type Props = {
+  params: Promise<{ id: string }>;
   searchParams: { [key: string]: string | string[] | undefined };
 }
 

@@ -47,9 +47,10 @@ export async function GET(
 // Also update POST handler
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } } // Changed this line
+  { params }: { params: { id: string } }
 ) {
   try {
+    const id = (await params).id;
     const { subject, value, description } = await request.json();
 
     // Validate required fields
@@ -62,7 +63,7 @@ export async function POST(
 
     // Verify student exists
     const student = await database.student.findUnique({
-      where: { id: params.id }, // Updated to use params directly
+      where: { id },
     });
 
     if (!student) {
@@ -78,7 +79,7 @@ export async function POST(
         subject,
         value,
         description,
-        studentId: params.id, // Updated to use params directly
+        studentId: id,
       },
       include: {
         student: true,
