@@ -12,7 +12,7 @@ import { SidebarTrigger } from '@repo/design-system/components/ui/sidebar';
 import type { Metadata } from 'next';
 
 const title = 'Wonderland';
-const description = 'Wonderland grading dashboard.';
+const description = 'Wonderland grading dashboard. Made with love by the Wonderland team.';
 
 export const metadata: Metadata = {
   title,
