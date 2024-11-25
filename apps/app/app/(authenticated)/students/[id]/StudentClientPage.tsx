@@ -8,6 +8,7 @@ import { Progress } from "@repo/design-system/components/ui/progress";
 import { Card, CardContent } from "@repo/design-system/components/ui/card";
 import { ScrollArea } from "@repo/design-system/components/ui/scroll-area";
 import { CircularProgress } from "@repo/design-system/components/ui/circular-progress";
+import { Button } from '@repo/design-system/components/ui/button';
 interface Grade {
   id: string
   subject: string
@@ -181,30 +182,36 @@ const handleEditGrade = async (gradeData: {
           <h2 className="text-2xl font-bold">Grade Overview</h2>
           <p className="text-muted-foreground">Track and manage academic performance</p>
         </div>
+
+
         <div className="flex gap-2">
-          <button
+
+          <Button
             onClick={() => setIsModalOpen(true)}
-            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+            variant="default"
           >
-            <Plus className="mr-2 h-4 w-4" />
-            Add Grade
-          </button>
-          <button
+            <Plus className=" h-4 w-4" />
+            <span className="hidden lg:block">Add Grade</span>
+          </Button>
+          <Button
             onClick={handleEditClick}
             disabled={selectedGrades.length !== 1}
-            className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground disabled:opacity-50"
+            variant="outline"
           >
-            <Pencil className="mr-2 h-4 w-4" />
-            Edit
-          </button>
-          <button
+            <Pencil className=" h-4 w-4" />
+            <span className="hidden lg:block">Edit</span>
+          </Button>
+          
+          <Button
             onClick={() => setIsDeleteDialogOpen(true)}
             disabled={selectedGrades.length === 0}
-            className="inline-flex items-center justify-center rounded-md bg-destructive px-4 py-2 text-sm font-medium text-destructive-foreground hover:bg-destructive/90 disabled:opacity-50"
+            variant="destructive"
+            className="relative"
           >
-            <Trash2 className="mr-2 h-4 w-4" />
-            Delete {selectedGrades.length > 0 && `(${selectedGrades.length})`}
-          </button>
+            <Trash2 className=" h-4 w-4" />
+            <span className="hidden lg:block">Delete</span>
+            <span className="absolute top-0 right-0 translate-x-1.5 -translate-y-1.5 rounded-full bg-destructive-foreground text-destructive text-xs px-2">{selectedGrades.length > 0 && `${selectedGrades.length}`}</span>
+          </Button>
         </div>
       </div>
 
