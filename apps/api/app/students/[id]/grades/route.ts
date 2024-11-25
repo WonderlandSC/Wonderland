@@ -11,12 +11,6 @@ const corsHeaders = {
   'Access-Control-Max-Age': '86400',
 } as const;
 
-type RouteContext = {
-  params: {
-    id: string;
-  };
-};
-
 
 export async function OPTIONS() {
   return new NextResponse(null, {
@@ -26,8 +20,8 @@ export async function OPTIONS() {
 }
 
 export async function GET(
-  req: NextRequest,
-  { params }: RouteContext
+  request: NextRequest,
+  { params }: { params: Record<string, string> }
 ) {
   try {
     const grades = await database.grade.findMany({
@@ -49,14 +43,12 @@ export async function GET(
   }
 }
 
-
-// Also update POST handler
 export async function POST(
-  req: NextRequest,
-  { params }: RouteContext
+  request: NextRequest,
+  { params }: { params: Record<string, string> }
 ) {
   try {
-    const { subject, value, description } = await req.json();
+    const { subject, value, description } = await request.json();
 
     // Validate required fields
     if (!subject || value === undefined) {
