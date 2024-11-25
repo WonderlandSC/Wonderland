@@ -22,12 +22,17 @@ import {
 
 import { Input } from "@repo/design-system/components/ui/input";
 import { Label } from "@repo/design-system/components/ui/label";
-import { useState } from "react"; // Import useState
+import { useEffect, useState } from "react"; // Import useState
 
 interface AddGradeModalProps {
   isOpen: boolean;
   onClose: () => void;
   onAddGrade: (gradeData: { subject: string; value: number; description?: string }) => void;
+  initialData?: {
+    subject: string;
+    value: number;
+    description?: string;
+  } | null;
 }
 
 interface AlertDialogProps {
@@ -38,11 +43,11 @@ interface AlertDialogProps {
   description: string;
 }
 
-export function AddGradeModal({ isOpen, onClose, onAddGrade }: AddGradeModalProps) {
+export function AddGradeModal({ isOpen, onClose, onAddGrade, initialData }: AddGradeModalProps) {
   // State for input fields
-  const [subject, setSubject] = useState("");
-  const [value, setValue] = useState(0);
-  const [description, setDescription] = useState("");
+  const [subject, setSubject] = useState(initialData?.subject || "");
+  const [value, setValue] = useState(initialData?.value || 0);
+  const [description, setDescription] = useState(initialData?.description || "");
 
   const handleAddGrade = () => {
     onAddGrade({ subject, value, description }); // Pass the state values to onAddGrade
@@ -52,6 +57,23 @@ export function AddGradeModal({ isOpen, onClose, onAddGrade }: AddGradeModalProp
     onClose(); // Close the modal
   };
 
+  useEffect(() => {
+    if (initialData) {
+      setSubject(initialData.subject);
+      setValue(initialData.value);
+      setDescription(initialData.description || "");
+    } else {
+      setSubject("");
+      setValue(0);
+      setDescription("");
+    }
+  }, [initialData, isOpen]);
+
+  const handleSubmit = () => {
+    onAddGrade({ subject, value, description });
+    onClose();
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       {/* <DialogTrigger asChild>
@@ -59,9 +81,9 @@ export function AddGradeModal({ isOpen, onClose, onAddGrade }: AddGradeModalProp
       </DialogTrigger> */}
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Add Grade</DialogTitle>
+          <DialogTitle>{initialData ? 'Edit Grade' : 'Add Grade'}</DialogTitle>
           <DialogDescription>
-            Add a new grade for the student.
+            {initialData ? 'Edit the grade details.' : 'Add a new grade for the student.'}
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
@@ -101,8 +123,9 @@ export function AddGradeModal({ isOpen, onClose, onAddGrade }: AddGradeModalProp
           </div>
         </div>
         <DialogFooter>
-          <Button type="button" onClick={handleAddGrade}>Add Grade</Button>
-        </DialogFooter>
+          <Button type="button" onClick={handleSubmit}>
+            {initialData ? 'Save Changes' : 'Add Grade'}
+          </Button>        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

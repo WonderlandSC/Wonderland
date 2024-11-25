@@ -27,6 +27,9 @@ export default function StudentClientPage({ studentId }: Props) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [gradeToEdit, setGradeToEdit] = useState<Grade | null>(null);
+
   const [selectedGrades, setSelectedGrades] = useState<string[]>([]);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
@@ -89,6 +92,45 @@ export default function StudentClientPage({ studentId }: Props) {
     return <div>Loading grades...</div>;
   }
 
+const handleEditGrade = async (gradeData: {
+  subject: string;
+  value: number;
+  description?: string;
+}) => {
+  try {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/students/${studentId}/grades/${gradeToEdit?.id}`,
+      {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify(gradeData),
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error('Failed to update grade');
+    }
+
+    // Refresh grades after updating
+    fetchGrades();
+    setGradeToEdit(null);
+    setIsEditModalOpen(false);
+    setSelectedGrades([]);
+  } catch (error) {
+    console.error('Error updating grade:', error);
+  }
+};
+
+    // Add helper function to handle edit button click
+  const handleEditClick = () => {
+    const selectedGrade = grades.find(grade => grade.id === selectedGrades[0]);
+    setGradeToEdit(selectedGrade || null);
+    setIsEditModalOpen(true);
+  };
+
   const handleDeleteGrades = async () => {
   try {
     const response = await fetch(
@@ -121,19 +163,36 @@ return (
     <div className="flex justify-between items-center mb-6">
       <h2 className="text-xl font-semibold">Grades List</h2>
       <div className="space-x-2">
-        {selectedGrades.length > 0 && (
-          <button
-            onClick={() => setIsDeleteDialogOpen(true)}
-            className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
-          >
-            Delete Selected ({selectedGrades.length})
-          </button>
-        )}
+
         <button
           onClick={() => setIsModalOpen(true)}
           className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
         >
           Add New Grade
+        </button>
+
+                  <button
+            onClick={handleEditClick}
+            disabled={selectedGrades.length !== 1}
+            className={`px-4 py-2 text-white rounded ${
+              selectedGrades.length !== 1
+                ? 'bg-gray-400 cursor-not-allowed'
+                : 'bg-yellow-500 hover:bg-yellow-600'
+            }`}
+          >
+            Edit Grade
+          </button>
+
+        <button
+          onClick={() => setIsDeleteDialogOpen(true)}
+          disabled={selectedGrades.length === 0}
+          className={`px-4 py-2 text-white rounded ${
+            selectedGrades.length === 0
+              ? 'bg-gray-400 cursor-not-allowed'
+              : 'bg-red-500 hover:bg-red-600'
+          }`}
+        >
+          Delete Selected {selectedGrades.length > 0 && `(${selectedGrades.length})`}
         </button>
       </div>
     </div>
@@ -180,6 +239,17 @@ return (
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onAddGrade={handleAddGrade}
+      />
+
+      <AddGradeModal
+        isOpen={isEditModalOpen}
+        onClose={() => {
+          setIsEditModalOpen(false);
+          setGradeToEdit(null);
+          setSelectedGrades([]);
+        }}
+        onAddGrade={handleEditGrade}
+        initialData={gradeToEdit}
       />
 
       <AlertDialog
