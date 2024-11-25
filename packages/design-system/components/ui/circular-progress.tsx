@@ -17,6 +17,12 @@ export function CircularProgress({
   const circumference = radius * 2 * Math.PI
   const offset = circumference - (value / 100) * circumference
 
+  // Determine the emoji based on the value
+  const emoji = value >= 90 ? '🤩' :
+                 value >= 70 ? '😊' :
+                 value >= 50 ? '😐' :
+                 '😢';
+
   return (
     <div className={className}>
       <svg
@@ -49,8 +55,17 @@ export function CircularProgress({
           cx={size / 2}
           cy={size / 2}
         />
+        <text
+          x="50%"
+          y="54%"
+          textAnchor="middle"
+          dominantBaseline="middle"
+          style={{ fontSize: size / 1.7 }}
+          transform={`rotate(90, ${size / 2}, ${size / 2})`} // Rotate by 90 degrees around the center
+        >
+          {emoji}
+        </text>
       </svg>
     </div>
   )
 }
-
