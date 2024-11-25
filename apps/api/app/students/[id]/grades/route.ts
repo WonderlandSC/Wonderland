@@ -20,12 +20,14 @@ export async function OPTIONS() {
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } } // Changed this line
+  { params }: { params: { id: string } }
 ) {
   try {
+    const id = (await params).id;
+    
     const grades = await database.grade.findMany({
       where: {
-        studentId: params.id, // Updated to use params directly
+        studentId: id,
       },
       include: {
         student: true,

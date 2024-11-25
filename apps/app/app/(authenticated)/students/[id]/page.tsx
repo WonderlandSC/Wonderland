@@ -1,14 +1,16 @@
 import { Suspense } from 'react';
 import StudentClientPage from './StudentClientPage';
 import { getStudentData } from '../utils';
+
 interface Props {
   params: {
     id: string;
-  }
+  };
+  searchParams: { [key: string]: string | string[] | undefined };
 }
 
 export default async function StudentGradesPage({ params }: Props) {
-  const { id } = params;
+  const id = (await params).id;
   const { student } = await getStudentData(id);
   return (
     <div className="container mx-auto py-6">
