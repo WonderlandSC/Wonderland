@@ -20,12 +20,14 @@ export async function OPTIONS() {
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
+    
     const grades = await database.grade.findMany({
       where: {
-        studentId: params.id,
+        studentId: id,
       },
       include: {
         student: true,
@@ -44,9 +46,10 @@ export async function GET(
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const { subject, value, description } = await request.json();
 
     if (!subject || value === undefined) {
@@ -57,7 +60,7 @@ export async function POST(
     }
 
     const student = await database.student.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!student) {
@@ -72,7 +75,7 @@ export async function POST(
         subject,
         value,
         description,
-        studentId: params.id,
+        studentId: id,
       },
       include: {
         student: true,
