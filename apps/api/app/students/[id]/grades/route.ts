@@ -11,6 +11,13 @@ const corsHeaders = {
   'Access-Control-Max-Age': '86400',
 } as const;
 
+type RouteContext = {
+  params: {
+    id: string;
+  };
+};
+
+
 export async function OPTIONS() {
   return new NextResponse(null, {
     status: 204,
@@ -19,15 +26,13 @@ export async function OPTIONS() {
 }
 
 export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
+  req: NextRequest,
+  { params }: RouteContext
 ) {
   try {
-    const { id } = params;
-    
     const grades = await database.grade.findMany({
       where: {
-        studentId: id,
+        studentId: params.id,
       },
       include: {
         student: true,
@@ -47,12 +52,11 @@ export async function GET(
 
 // Also update POST handler
 export async function POST(
-  request: NextRequest,
-  { params }: { params: { id: string } }
+  req: NextRequest,
+  { params }: RouteContext
 ) {
   try {
-    const { id } = params;
-    const { subject, value, description } = await request.json();
+    const { subject, value, description } = await req.json();
 
     // Validate required fields
     if (!subject || value === undefined) {
@@ -64,7 +68,7 @@ export async function POST(
 
     // Verify student exists
     const student = await database.student.findUnique({
-      where: { id },
+      where: { id: params.id },
     });
 
     if (!student) {
@@ -80,7 +84,7 @@ export async function POST(
         subject,
         value,
         description,
-        studentId: id,
+        studentId: params.id,
       },
       include: {
         student: true,
