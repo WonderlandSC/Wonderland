@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { database } from '@repo/database';
 
 const corsHeaders = {
@@ -11,9 +11,8 @@ const corsHeaders = {
   'Access-Control-Max-Age': '86400',
 } as const;
 
-
 export async function OPTIONS() {
-  return new NextResponse(null, {
+  return new Response(null, {
     status: 204,
     headers: corsHeaders,
   });
@@ -21,12 +20,12 @@ export async function OPTIONS() {
 
 export async function GET(
   request: NextRequest,
-  context: { params: { id: string } }
+  { params }: { params: { id: string } }
 ) {
   try {
     const grades = await database.grade.findMany({
       where: {
-        studentId: context.params.id,
+        studentId: params.id,
       },
       include: {
         student: true,
@@ -45,48 +44,45 @@ export async function GET(
 
 export async function POST(
   request: NextRequest,
-  context: { params: { id: string } }
+  { params }: { params: { id: string } }
 ) {
   try {
     const { subject, value, description } = await request.json();
 
-    // Validate required fields
     if (!subject || value === undefined) {
-      return NextResponse.json(
+      return Response.json(
         { error: 'Subject and value are required' },
         { status: 400, headers: corsHeaders }
       );
     }
 
-    // Verify student exists
     const student = await database.student.findUnique({
-      where: { id: context.params.id },  // Fixed: using context.params.id
+      where: { id: params.id },
     });
 
     if (!student) {
-      return NextResponse.json(
+      return Response.json(
         { error: 'Student not found' },
         { status: 404, headers: corsHeaders }
       );
     }
 
-    // Create the grade
     const grade = await database.grade.create({
       data: {
         subject,
         value,
         description,
-        studentId: context.params.id,  // Fixed: using context.params.id
+        studentId: params.id,
       },
       include: {
         student: true,
       },
     });
 
-    return NextResponse.json({ grade }, { headers: corsHeaders });
+    return Response.json({ grade }, { headers: corsHeaders });
   } catch (error) {
     console.error('Error creating grade:', error);
-    return NextResponse.json(
+    return Response.json(
       { error: 'Failed to create grade' },
       { status: 500, headers: corsHeaders }
     );
