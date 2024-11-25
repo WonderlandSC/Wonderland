@@ -4,12 +4,13 @@ import { getStudentData } from '../utils';
 
 type Props = {
   params: Promise<{ id: string }>;
-  searchParams: { [key: string]: string | string[] | undefined };
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
 export default async function StudentGradesPage({ params }: Props) {
   const id = (await params).id;
   const { student } = await getStudentData(id);
+  
   return (
     <div className="container mx-auto py-6">
       <h1 className="text-2xl font-bold mb-6">{student?.firstName} {student?.lastName}</h1>

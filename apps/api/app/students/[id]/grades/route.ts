@@ -20,10 +20,10 @@ export async function OPTIONS() {
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
   try {
-    const id = (await params).id;
+    const { id } = context.params;
     
     const grades = await database.grade.findMany({
       where: {
@@ -47,10 +47,10 @@ export async function GET(
 // Also update POST handler
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
   try {
-    const id = (await params).id;
+    const { id } = context.params;
     const { subject, value, description } = await request.json();
 
     // Validate required fields
