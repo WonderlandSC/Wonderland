@@ -2,9 +2,7 @@ import { NextRequest } from 'next/server';
 import { database } from '@repo/database';
 
 const corsHeaders = {
-  'Access-Control-Allow-Origin': process.env.NODE_ENV === 'development' 
-    ? 'http://localhost:3000'
-    : process.env.NEXT_PUBLIC_APP_URL || 'https://wonderland-api-ten.vercel.app',
+  'Access-Control-Allow-Origin': process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
   'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type, Authorization',
   'Access-Control-Allow-Credentials': 'true',
