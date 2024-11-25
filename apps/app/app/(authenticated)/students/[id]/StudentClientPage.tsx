@@ -59,7 +59,7 @@ export default function StudentClientPage({ studentId }: Props) {
   }) => {
     try {
       const response = await fetch(
-        `http://localhost:3002/students/${studentId}/grades`,
+        `${process.env.NEXT_PUBLIC_API_URL}/students/${studentId}/grades`, // Use environment variable
         {
           method: 'POST',
           headers: {
