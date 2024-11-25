@@ -29,11 +29,15 @@ export default function StudentClientPage({ studentId }: Props) {
   const fetchGrades = async () => {
     try {
       const response = await fetch(
-        `http://localhost:3002/students/${studentId}/grades`,
+        `${process.env.NEXT_PUBLIC_API_URL}/students/${studentId}/grades`,
         {
           credentials: 'include',
         }
       );
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch grades');
+      }
       const data = await response.json();
       setGrades(data.grades || []); // Ensure we always have an array
     } catch (error) {
