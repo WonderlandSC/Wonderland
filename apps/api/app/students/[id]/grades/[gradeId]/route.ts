@@ -18,10 +18,10 @@ export async function OPTIONS() {
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string; gradeId: string } }
+  { params }: { params: Promise<{ id: string; gradeId: string }> }
 ) {
   try {
-    const { id, gradeId } = params;
+    const { id, gradeId } = await params;
     console.log('Received PUT request for student:', id, 'grade:', gradeId);
 
     const body = await request.json();
