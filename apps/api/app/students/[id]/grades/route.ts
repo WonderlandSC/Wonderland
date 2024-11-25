@@ -4,13 +4,12 @@ import { database } from '@repo/database';
 const corsHeaders = {
   'Access-Control-Allow-Origin': process.env.NODE_ENV === 'development' 
     ? 'http://localhost:3000'
-    : process.env.NEXT_PUBLIC_APP_URL || 'https://your-production-url.com',
+    : process.env.NEXT_PUBLIC_APP_URL || 'https://wonderland-app-cyan.vercel.app',
   'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type, Authorization',
   'Access-Control-Allow-Credentials': 'true',
   'Access-Control-Max-Age': '86400',
 } as const;
-
 
 export async function OPTIONS() {
   return new NextResponse(null, {
@@ -21,7 +20,7 @@ export async function OPTIONS() {
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Record<string, string> }
+  { params }: { params: { id: string } }  // Changed this line
 ) {
   try {
     const grades = await database.grade.findMany({
@@ -45,7 +44,7 @@ export async function GET(
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: Record<string, string> }
+  { params }: { params: { id: string } }  // Changed this line
 ) {
   try {
     const { subject, value, description } = await request.json();
