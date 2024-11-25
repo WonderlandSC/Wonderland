@@ -21,12 +21,12 @@ export async function OPTIONS() {
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
   try {
     const grades = await database.grade.findMany({
       where: {
-        studentId: params.id,
+        studentId: context.params.id,
       },
       include: {
         student: true,
@@ -36,16 +36,16 @@ export async function GET(
       },
     });
 
-    return NextResponse.json({ grades }, { headers: corsHeaders });
+    return Response.json({ grades }, { headers: corsHeaders });
   } catch (error) {
     console.error('Error fetching grades:', error);
-    return NextResponse.json({ grades: [] }, { headers: corsHeaders });
+    return Response.json({ grades: [] }, { headers: corsHeaders });
   }
 }
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
   try {
     const { subject, value, description } = await request.json();
@@ -60,7 +60,7 @@ export async function POST(
 
     // Verify student exists
     const student = await database.student.findUnique({
-      where: { id: params.id },
+      where: { id: context.params.id },  // Fixed: using context.params.id
     });
 
     if (!student) {
@@ -76,7 +76,7 @@ export async function POST(
         subject,
         value,
         description,
-        studentId: params.id,
+        studentId: context.params.id,  // Fixed: using context.params.id
       },
       include: {
         student: true,
