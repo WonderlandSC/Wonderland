@@ -8,6 +8,18 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@repo/design-system/components/ui/dialog";
+
+import {
+  AlertDialog as AlertDialogUI,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@repo/design-system/components/ui/alert-dialog";
+
 import { Input } from "@repo/design-system/components/ui/input";
 import { Label } from "@repo/design-system/components/ui/label";
 import { useState } from "react"; // Import useState
@@ -16,6 +28,14 @@ interface AddGradeModalProps {
   isOpen: boolean;
   onClose: () => void;
   onAddGrade: (gradeData: { subject: string; value: number; description?: string }) => void;
+}
+
+interface AlertDialogProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+  title: string;
+  description: string;
 }
 
 export function AddGradeModal({ isOpen, onClose, onAddGrade }: AddGradeModalProps) {
@@ -34,9 +54,9 @@ export function AddGradeModal({ isOpen, onClose, onAddGrade }: AddGradeModalProp
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogTrigger asChild>
+      {/* <DialogTrigger asChild>
         <Button variant="outline">Add Grade</Button>
-      </DialogTrigger>
+      </DialogTrigger> */}
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Add Grade</DialogTitle>
@@ -85,5 +105,22 @@ export function AddGradeModal({ isOpen, onClose, onAddGrade }: AddGradeModalProp
         </DialogFooter>
       </DialogContent>
     </Dialog>
+  );
+}
+
+export function AlertDialog({ isOpen, onClose, onConfirm, title, description }: AlertDialogProps) {
+  return (
+    <AlertDialogUI open={isOpen} onOpenChange={onClose}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>{title}</AlertDialogTitle>
+          <AlertDialogDescription>{description}</AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel onClick={onClose}>Cancel</AlertDialogCancel>
+          <AlertDialogAction onClick={onConfirm}>Delete</AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialogUI>
   );
 }

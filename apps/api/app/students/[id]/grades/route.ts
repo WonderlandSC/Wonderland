@@ -3,7 +3,7 @@ import { database } from '@repo/database';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
-  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS, DELETE',
   'Access-Control-Allow-Headers': 'Content-Type, Authorization',
   'Access-Control-Allow-Credentials': 'true',
   'Access-Control-Max-Age': '86400',
@@ -85,6 +85,38 @@ export async function POST(
     console.error('Error creating grade:', error);
     return Response.json(
       { error: 'Failed to create grade' },
+      { status: 500, headers: corsHeaders }
+    );
+  }
+}
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    const { gradeIds } = await request.json();
+
+    if (!gradeIds || !Array.isArray(gradeIds)) {
+      return Response.json(
+        { error: 'Grade IDs are required' },
+        { status: 400, headers: corsHeaders }
+      );
+    }
+
+    await database.grade.deleteMany({
+      where: {
+        id: { in: gradeIds },
+        studentId: id, // Ensure grades belong to the student
+      },
+    });
+
+    return Response.json({ success: true }, { headers: corsHeaders });
+  } catch (error) {
+    console.error('Error deleting grades:', error);
+    return Response.json(
+      { error: 'Failed to delete grades' },
       { status: 500, headers: corsHeaders }
     );
   }
