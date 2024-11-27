@@ -130,7 +130,7 @@ export function StudentProgressDashboard({ studentId, grades, isLoading }: Props
           </CardHeader>
           <CardContent>
             <div className="h-[490px]">
-              <ResponsiveContainer width="100%" height="100%">
+              {/* <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={chartData}>
                   <XAxis 
                     dataKey="subject" 
@@ -153,7 +153,7 @@ export function StudentProgressDashboard({ studentId, grades, isLoading }: Props
                     className="fill-primary"
                   />
                 </BarChart>
-              </ResponsiveContainer>
+              </ResponsiveContainer> */}
             </div>
           </CardContent>
         </Card>
