@@ -6,6 +6,7 @@ import { StudentProgressDashboard } from '@repo/design-system/components/student
 
 async function getStudentGrades(studentId: string) {
   try {
+    console.log('Fetching grades for student:', studentId);
     const grades = await database.grade.findMany({
       where: {
         studentId: studentId,
@@ -14,25 +15,29 @@ async function getStudentGrades(studentId: string) {
         createdAt: 'desc',
       },
     })
+    console.log('Fetched grades:', grades);
     return grades
   } catch (error) {
     console.error('Error fetching grades:', error)
-    return []
+    throw error; // Let's throw the error to see it in Vercel logs
   }
 }
 
 export default async function ProgressPage() {
-  const { userId } = await auth()
-  
-  if (!userId) {
-    redirect('/sign-in')
-  }
+  try {
+    const { userId } = await auth()
+    console.log('User ID:', userId);
+    
+    if (!userId) {
+      redirect('/sign-in')
+    }
 
   const student = await database.student.findUnique({
     where: {
       clerkId: userId,
     },
   })
+    console.log('Found student:', student);
 
   if (!student) {
     return (
@@ -44,6 +49,7 @@ export default async function ProgressPage() {
   }
 
   const grades = await getStudentGrades(student.id)
+    console.log('Grades loaded:', grades.length);
 
   return (
     <div className="container mx-auto py-6">
@@ -56,5 +62,8 @@ export default async function ProgressPage() {
       </Suspense>
     </div>
   )
+  } catch (error) {
+    console.error('Error in ProgressPage:', error)
+    return <div>Error loading student progress</div>
+  }
 }
-
