@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card"
 import { ScrollArea } from "./ui/scroll-area"
 import { Tabs, TabsList, TabsTrigger } from "./ui/tabs"
@@ -31,8 +31,36 @@ interface Props {
 
 type TimePeriod = "individual" | "week" | "month" | "quarter" | "year"
 
-export function StudentProgressDashboard({ studentId, grades, isLoading }: Props) {
-  const [timePeriod, setTimePeriod] = useState<TimePeriod>("individual")
+export function StudentProgressDashboard({ studentId }: Props) {
+  const [grades, setGrades] = useState<Grade[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [timePeriod, setTimePeriod] = useState<TimePeriod>("individual");
+
+  const fetchGrades = async () => {
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/students/${studentId}/grades`,
+        {
+          credentials: 'include',
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch grades');
+      }
+      const data = await response.json();
+      setGrades(data.grades || []);
+    } catch (error) {
+      console.error('Error fetching grades:', error);
+      setGrades([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchGrades();
+  }, [studentId]);
 
   if (isLoading) {
     return <div>Loading...</div>
@@ -130,7 +158,7 @@ export function StudentProgressDashboard({ studentId, grades, isLoading }: Props
           </CardHeader>
           <CardContent>
             <div className="h-[490px]">
-              {/* <ResponsiveContainer width="100%" height="100%">
+              <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={chartData}>
                   <XAxis 
                     dataKey="subject" 
@@ -153,7 +181,7 @@ export function StudentProgressDashboard({ studentId, grades, isLoading }: Props
                     className="fill-primary"
                   />
                 </BarChart>
-              </ResponsiveContainer> */}
+              </ResponsiveContainer>
             </div>
           </CardContent>
         </Card>
