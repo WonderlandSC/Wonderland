@@ -17,8 +17,27 @@ model Student {
   clerkId        String   @unique
   organizationId String
   grades         Grade[]
+  groupId        String?
+  group          Group?   @relation(fields: [groupId], references: [id])
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
+
+  @@index([groupId])
+}
+
+model Group {
+  id                String    @id @default(cuid())
+  name              String
+  description       String?
+  regularPrice      Float
+  earlyBirdPrice    Float
+  earlyBirdDeadline DateTime
+  schedule          String
+  students          Student[]
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  @@unique([name])
 }
 
 model Grade {

@@ -18,6 +18,15 @@ class ExtendedPrismaClient extends PrismaClient {
     // Assuming value is an object with grade details
     this.grade.create({ data: value }); // Create a new grade
   }
+
+  get group() {
+    return this.group.findMany(); // Fetch all groups
+  }
+  
+  set group(value: any) {
+    // Assuming value is an object with group details
+    this.group.create({ data: value }); // Create a new group
+  }
 }
 
 const database = new ExtendedPrismaClient()
