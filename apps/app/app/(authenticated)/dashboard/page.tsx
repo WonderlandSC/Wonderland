@@ -26,44 +26,63 @@ async function getStudentGrades(studentId: string) {
 export default async function ProgressPage() {
   try {
     const { userId } = await auth()
-    console.log('User ID:', userId);
+    console.log('[VERCEL] User ID:', userId);
     
     if (!userId) {
+      console.log('[VERCEL] No userId found, redirecting to sign-in');
       redirect('/sign-in')
     }
 
-  const student = await database.student.findUnique({
-    where: {
-      clerkId: userId,
-    },
-  })
-    console.log('Found student:', student);
+    const student = await database.student.findUnique({
+      where: {
+        clerkId: userId,
+      },
+    })
+    console.log('[VERCEL] Found student:', JSON.stringify(student, null, 2));
 
-  if (!student) {
+    if (!student) {
+      console.log('[VERCEL] No student found for clerkId:', userId);
+      return (
+        <div className="container mx-auto py-6">
+          <h1 className="text-2xl font-bold mb-6">Student Profile Not Found</h1>
+          <p>Please contact your administrator.</p>
+        </div>
+      )
+    }
+
+    const grades = await getStudentGrades(student.id)
+    console.log('[VERCEL] Grades loaded:', grades.length);
+
     return (
       <div className="container mx-auto py-6">
-        <h1 className="text-2xl font-bold mb-6">Student Profile Not Found</h1>
-        <p>Please contact your administrator.</p>
+        <Suspense fallback={<div>Loading...</div>}>
+          <StudentProgressDashboard 
+            studentId={student.id}
+            grades={grades}
+            isLoading={false}
+          />
+        </Suspense>
       </div>
     )
-  }
-
-  const grades = await getStudentGrades(student.id)
-    console.log('Grades loaded:', grades.length);
-
-  return (
-    <div className="container mx-auto py-6">
-      <Suspense fallback={<div>Loading...</div>}>
-        <StudentProgressDashboard 
-          studentId={student.id}
-          grades={grades}
-          isLoading={false}
-        />
-      </Suspense>
-    </div>
-  )
   } catch (error) {
-    console.error('Error in ProgressPage:', error)
-    return <div>Error loading student progress</div>
+    console.error('[VERCEL] Detailed error in ProgressPage:', {
+      error: error,
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined
+    });
+    
+    // Return more detailed error information in development
+    if (process.env.NODE_ENV === 'development') {
+      return (
+        <div className="container mx-auto py-6">
+          <h1 className="text-2xl font-bold mb-6">Error Loading Progress</h1>
+          <pre className="bg-red-50 p-4 rounded">
+            {JSON.stringify(error instanceof Error ? error.message : error, null, 2)}
+          </pre>
+        </div>
+      );
+    }
+    
+    return <div>Error loading student progress</div>;
   }
 }
