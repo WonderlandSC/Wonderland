@@ -4,10 +4,10 @@ import { useState, useEffect } from 'react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@repo/design-system/components/ui/tabs"
 import { Button } from "@repo/design-system/components/ui/button"
 import { useToast } from "@repo/design-system/components/ui/use-toast"
-import { PlusIcon, MinusIcon } from "lucide-react"
+import { PlusIcon, MinusIcon } from 'lucide-react'
 import { AddStudentModal } from './AddStudentModal'
 import { RemoveStudentModal } from './RemoveStudentModal'
-import { Separator } from '@repo/design-system/components/ui/separator';
+import { ScrollArea } from "@repo/design-system/components/ui/scroll-area"
 
 interface Group {
   id: string;
@@ -38,24 +38,24 @@ export function GroupTabs() {
     }
   }, [selectedGroup]);
 
-const fetchGroups = async () => {
-  try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/groups`);
-    if (!response.ok) throw new Error('Failed to fetch groups');
-    const data = await response.json();
-    setGroups(data.groups.reverse()); // Reversing the groups array
-    if (data.groups.length > 0) setSelectedGroup(data.groups[0].id);
-  } catch (error) {
-    console.error('Error fetching groups:', error);
-    toast({
-      title: "Error",
-      description: "Failed to fetch groups. Please try again.",
-      variant: "destructive",
-    });
-  }
-};
+  const fetchGroups = async () => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/groups`);
+      if (!response.ok) throw new Error('Failed to fetch groups');
+      const data = await response.json();
+      setGroups(data.groups.reverse());
+      if (data.groups.length > 0) setSelectedGroup(data.groups[0].id);
+    } catch (error) {
+      console.error('Error fetching groups:', error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch groups. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
 
-    const handleAddStudent = () => {
+  const handleAddStudent = () => {
     setIsAddModalOpen(true);
   };
 
@@ -80,24 +80,28 @@ const fetchGroups = async () => {
   };
 
   return (
-    <div>
+    <div className="space-y-4">
       <Tabs value={selectedGroup || undefined} onValueChange={setSelectedGroup}>
-        <div className="flex justify-between items-center mb-4">
-<TabsList className=""> {/* Use grid layout with 4 columns */}
-  {groups.map((group) => (
-    <div key={group.id}>
-      <TabsTrigger value={group.id}>
-        {group.name}
-      </TabsTrigger>
-    </div>
-  ))}
-</TabsList>
-          <div className="space-x-2">
-            <Button onClick={handleAddStudent} variant="outline">
+        <div className="flex flex-col space-y-4  ">
+          <ScrollArea className="w-full sm:w-auto">
+            <TabsList className="h-auto flex-wrap justify-start">
+              {groups.map((group, index) => (
+                <TabsTrigger
+                  key={group.id}
+                  value={group.id}
+                  className={`flex-grow-0 ${index % 5 === 0 ? 'sm:ml-0' : ''}`}
+                >
+                  {group.name}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </ScrollArea>
+          <div className="flex space-x-2">
+            <Button onClick={handleAddStudent} variant="outline" size="sm">
               <PlusIcon className="h-4 w-4 mr-2" />
               Add Student
             </Button>
-            <Button onClick={handleRemoveStudent} variant="outline">
+            <Button onClick={handleRemoveStudent} variant="outline" size="sm">
               <MinusIcon className="h-4 w-4 mr-2" />
               Remove Student
             </Button>
@@ -105,18 +109,20 @@ const fetchGroups = async () => {
         </div>
         {groups.map((group) => (
           <TabsContent key={group.id} value={group.id}>
-            <h2 className="text-xl font-bold mb-4">Students in {group.name}</h2>
-            {students.length > 0 ? (
-              <ul className="space-y-2">
-                {students.map((student) => (
-                  <li key={student.id} className="p-2 bg-secondary rounded-lg">
-                    {student.firstName} {student.lastName}
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p>No students in this group.</p>
-            )}
+            <div className="bg-card text-card-foreground rounded-lg p-6">
+              <h2 className="text-xl font-bold mb-4">Students in {group.name}</h2>
+              {students.length > 0 ? (
+                <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                  {students.map((student) => (
+                    <li key={student.id} className="p-3 bg-secondary rounded-lg shadow">
+                      {student.firstName} {student.lastName}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-muted-foreground">No students in this group.</p>
+              )}
+            </div>
           </TabsContent>
         ))}
       </Tabs>
@@ -142,3 +148,4 @@ const fetchGroups = async () => {
     </div>
   );
 }
+
