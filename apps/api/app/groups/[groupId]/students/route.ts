@@ -47,10 +47,10 @@ export async function GET(
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { groupId: string } }
+  { params }: { params: Promise<{ groupId: string }> }  // Changed to Promise type
 ) {
   try {
-    const { groupId } = params;
+    const { groupId } = await params;  // Added await here
     const body = await request.json();
     const { studentIds } = body;
 
@@ -99,10 +99,10 @@ export async function POST(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { groupId: string } }
+  { params }: { params: Promise<{ groupId: string }> }  // Changed to Promise type
 ) {
   try {
-    const { groupId } = params;
+    const { groupId } = await params;  // Added await here
     const { studentIds } = await request.json();
 
     if (!studentIds || !Array.isArray(studentIds)) {
