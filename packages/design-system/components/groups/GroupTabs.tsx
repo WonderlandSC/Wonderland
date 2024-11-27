@@ -89,7 +89,7 @@ export function GroupTabs() {
                 <TabsTrigger
                   key={group.id}
                   value={group.id}
-                  className={`flex-grow-0 ${index % 5 === 0 ? 'sm:ml-0' : ''}`}
+                  className={`flex-grow-0 my-1 ${index % 5 === 0 ? 'sm:ml-0' : ''}`}
                 >
                   {group.name}
                 </TabsTrigger>
@@ -97,11 +97,11 @@ export function GroupTabs() {
             </TabsList>
           </ScrollArea>
           <div className="flex space-x-2">
-            <Button onClick={handleAddStudent} variant="outline" size="sm">
+            <Button onClick={handleAddStudent} variant="default" size="sm">
               <PlusIcon className="h-4 w-4 mr-2" />
               Add Student
             </Button>
-            <Button onClick={handleRemoveStudent} variant="outline" size="sm">
+            <Button onClick={handleRemoveStudent} variant="destructive" size="sm">
               <MinusIcon className="h-4 w-4 mr-2" />
               Remove Student
             </Button>
@@ -115,8 +115,12 @@ export function GroupTabs() {
                 <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                   {students.map((student) => (
                     <li key={student.id} className="p-3 bg-secondary rounded-lg shadow">
-                      {student.firstName} {student.lastName}
-                    </li>
+                      <a href={`/students/${student.id}`} className="block p-3 text-left">
+                        <div className="flex items-center">
+                          <span className="font-semibold">{student.firstName} {student.lastName}</span>
+                        </div>
+                      </a>
+    </li>
                   ))}
                 </ul>
               ) : (

@@ -5,7 +5,6 @@ import { useState } from 'react';
 import { Button } from "@repo/design-system/components/ui/button";
 import { useToast } from "@repo/design-system/components/ui/use-toast";
 import { GroupTabs } from '@repo/design-system/components/groups/GroupTabs';
-import { MinusIcon, PlusIcon } from 'lucide-react';
 export default function StudentsPage() {
   const [isCreateGroupModalOpen, setIsCreateGroupModalOpen] = useState(false);
   const { toast } = useToast();

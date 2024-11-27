@@ -8,6 +8,7 @@ type StudentsLayoutProperties = {
 };
 
 const StudentsLayout = ({ children }: StudentsLayoutProperties) => {
+  
   return (
     <>
       <header className="flex h-16 shrink-0 items-center gap-2">
@@ -21,8 +22,9 @@ const StudentsLayout = ({ children }: StudentsLayoutProperties) => {
               </BreadcrumbItem>
               <BreadcrumbSeparator />
               <BreadcrumbItem>
-                <BreadcrumbPage>Students</BreadcrumbPage>
+                <BreadcrumbLink href="/students">Students</BreadcrumbLink>
               </BreadcrumbItem>
+
             </BreadcrumbList>
           </Breadcrumb>
         </div>
