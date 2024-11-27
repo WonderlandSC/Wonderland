@@ -23,3 +23,17 @@ export async function getStudentData(membershipId: string) {
     student
   };
 }
+
+export async function getCurrentUserMembership() {
+  const { userId, orgId } = await auth();
+  if (!orgId || !userId) return null;
+
+  const clerk = await clerkClient();
+  const memberships = await clerk.organizations.getOrganizationMembershipList({
+    organizationId: orgId
+  });
+  
+  return memberships.data.find((m: OrganizationMembership) => 
+    m.publicUserData?.userId === userId
+  );
+}
