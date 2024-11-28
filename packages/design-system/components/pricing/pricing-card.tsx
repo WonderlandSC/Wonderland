@@ -22,12 +22,16 @@ interface PricingCardProps {
 export function PricingCard({ group, priceType, showSettings }: PricingCardProps) {
   const [isModalOpen, setIsModalOpen] = useState(false)
 
-  const calculatePrice = () => {
-    switch (priceType) {
-      case 'earlyBird':
-        return new Date() < group.earlyBirdDeadline ? 
-          { main: group.earlyBirdPrice, secondary: group.regularPrice } :
-          { main: group.regularPrice, secondary: null };
+const calculatePrice = () => {
+  const currentDate = new Date(); // Get the current date
+  const earlyBirdDeadline = new Date(group.earlyBirdDeadline); // Convert to Date object
+
+  switch (priceType) {
+    case 'earlyBird':
+      const isEarlyBird = currentDate < earlyBirdDeadline; // Compare dates
+      return isEarlyBird ? 
+        { main: group.earlyBirdPrice, secondary: group.regularPrice } :
+        { main: group.regularPrice, secondary: null };
       case 'threePayments':
         return { main: group.regularPrice / 3, secondary: group.regularPrice };
       case 'fourPayments':

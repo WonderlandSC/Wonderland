@@ -9,7 +9,6 @@ import { Hero } from './components/hero';
 import { Stats } from './components/stats';
 import { Testimonials } from './components/testimonials';
 import { PricingPageClient } from '../../../app/app/(authenticated)/settings/pricing-page-client';
-import { database } from '@repo/database';
 const meta = {
   title: 'Wonderland',
   description:
@@ -18,17 +17,22 @@ const meta = {
 
 export const metadata: Metadata = createMetadata(meta);
 
-async function getGroups() {
-  return await database.group.findMany({
-    orderBy: { name: 'asc' }
-  })
-}
+
 
 const Home = async () => {
   const betaFeature = await showBetaFeature();
-  const groups = await getGroups()
-  const hopGroups = groups.filter((g: any) => g.name.toLowerCase().startsWith('hop'))
-  const growUpGroups = groups.filter((g: any) => g.name.toLowerCase().includes('grow up'))
+  
+  // Fetch groups from the API service
+  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/groups`, {
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+  const { groups = [] } = await response.json();
+  
+  const hopGroups = groups.filter((g: any) => g.name.toLowerCase().startsWith('hop'));
+  const growUpGroups = groups.filter((g: any) => g.name.toLowerCase().includes('grow up'));
+  
   return (
     <>
       {betaFeature && (
@@ -37,10 +41,10 @@ const Home = async () => {
         </div>
       )}
       <Hero />
-    <PricingPageClient 
-      hopGroups={hopGroups} 
-      growUpGroups={growUpGroups} 
-    />
+      <PricingPageClient 
+        hopGroups={hopGroups.reverse()}
+        growUpGroups={growUpGroups.reverse()}
+      />
       <Cases />
       <Features />
       <Stats />
