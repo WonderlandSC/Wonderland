@@ -1,6 +1,7 @@
 'use client'
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@repo/design-system/components/ui/card"
-import { Settings } from "lucide-react"
+import { Settings } from 'lucide-react'
 import { Button } from "@repo/design-system/components/ui/button"
 import { useState } from "react"
 import { SettingsModal } from "../modals/settings-modal"
@@ -16,22 +17,21 @@ interface PricingCardProps {
     schedule: string
   }
   priceType: string
-  showSettings?: boolean // New prop instead of using pathname directly
+  showSettings: boolean
+  isEarlyBirdTab: boolean
+  groupType: 'primary' | 'secondary'
 }
 
-export function PricingCard({ group, priceType, showSettings }: PricingCardProps) {
+export function PricingCard({ group, priceType, showSettings, isEarlyBirdTab, groupType }: PricingCardProps) {
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const currentDate = new Date();
+  const earlyBirdDeadline = new Date(group.earlyBirdDeadline);
+  const isEarlyBirdActive = currentDate < earlyBirdDeadline;
 
-const calculatePrice = () => {
-  const currentDate = new Date(); // Get the current date
-  const earlyBirdDeadline = new Date(group.earlyBirdDeadline); // Convert to Date object
-
-  switch (priceType) {
-    case 'earlyBird':
-      const isEarlyBird = currentDate < earlyBirdDeadline; // Compare dates
-      return isEarlyBird ? 
-        { main: group.earlyBirdPrice, secondary: group.regularPrice } :
-        { main: group.regularPrice, secondary: null };
+  const calculatePrice = () => {
+    switch (priceType) {
+      case 'earlyBird':
+        return { main: group.earlyBirdPrice, secondary: group.regularPrice };
       case 'threePayments':
         return { main: group.regularPrice / 3, secondary: group.regularPrice };
       case 'fourPayments':
@@ -44,20 +44,31 @@ const calculatePrice = () => {
   const { main, secondary } = calculatePrice()
 
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(price)
+    const roundedPrice = Math.ceil(price);
+    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'BGN', minimumFractionDigits: 0 }).format(roundedPrice);
   }
 
   const getPriceLabel = () => {
-    if (priceType === 'threePayments') return '/ month (3 payments)';
-    if (priceType === 'fourPayments') return '/ month (4 payments)';
+    if (priceType === 'threePayments') return '/ month';
+    if (priceType === 'fourPayments') return '/ month';
     return '';
   }
 
+  const isButtonDisabled = isEarlyBirdTab && !isEarlyBirdActive;
+
+  const cardColors = groupType === 'primary' 
+    ? 'bg-gradient-to-br from-purple-100 to-cyan-100 dark:from-purple-900 dark:to-cyan-900'
+    : 'bg-gradient-to-br from-purple-50 to-cyan-50 dark:from-purple-950 dark:to-cyan-950';
+
+  const buttonColors = groupType === 'primary'
+    ? 'bg-purple-600 hover:bg-purple-700 text-white'
+    : 'bg-cyan-600 hover:bg-cyan-700 text-white';
+
   return (
     <>
-      <Card>
+      <Card className={`overflow-hidden transition-all duration-300 ease-in-out hover:shadow-lg ${cardColors}`}>
         <CardHeader className="relative">
-          {showSettings && ( // Use the prop instead of pathname check
+          {showSettings && (
             <Button
               variant="ghost"
               size="icon"
@@ -67,23 +78,32 @@ const calculatePrice = () => {
               <Settings className="h-4 w-4" />
             </Button>
           )}
-          <CardTitle>{group.name}</CardTitle>
-          <CardDescription>{group.description}</CardDescription>
+          <CardTitle className="text-2xl font-bold">{group.name}</CardTitle>
+          <CardDescription className="text-sm">{group.description}</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-2">
+          <div className="space-y-4">
             <div className="flex items-baseline space-x-2">
-              <span className="text-2xl font-bold">
+              <span className="text-3xl font-extrabold">
                 {formatPrice(main)}
                 <span className="text-sm font-normal">{getPriceLabel()}</span>
               </span>
               {secondary && (
-                <span className="text-sm text-muted-foreground line-through">
+                <span className={`text-sm text-muted-foreground ${priceType === 'earlyBird' ? 'line-through' : ''}`}>
                   {formatPrice(secondary)}
                 </span>
               )}
             </div>
             <p className="text-sm text-muted-foreground">{group.schedule}</p>
+            <div className="pt-4">
+              <Button 
+                className={`w-full ${buttonColors}`}
+                variant={isButtonDisabled ? "outline" : "default"} 
+                disabled={isButtonDisabled}
+              >
+                Contact Us
+              </Button>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -98,3 +118,4 @@ const calculatePrice = () => {
     </>
   )
 }
+
