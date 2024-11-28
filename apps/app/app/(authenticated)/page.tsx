@@ -106,13 +106,11 @@ const App = async () => {
         </header>
         <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
           <div className="container mx-auto">
-            <Suspense fallback={<div>Loading...</div>}>
               <StudentProgressDashboard 
                 studentId={student.id}
                 isLoading={false}
                 grades={[]}
               />
-            </Suspense>
           </div>
         </div>
       </>

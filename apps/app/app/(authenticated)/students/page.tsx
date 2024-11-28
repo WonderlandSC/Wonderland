@@ -5,7 +5,9 @@ import { useState } from 'react';
 import { Button } from "@repo/design-system/components/ui/button";
 import { useToast } from "@repo/design-system/components/ui/use-toast";
 import { GroupTabs } from '@repo/design-system/components/groups/GroupTabs';
-export default function StudentsPage() {
+import { withAdminProtection } from '../components/protected-route';
+
+ function StudentsPage() {
   const [isCreateGroupModalOpen, setIsCreateGroupModalOpen] = useState(false);
   const { toast } = useToast();
 
@@ -70,3 +72,5 @@ export default function StudentsPage() {
     </div>
   );
 }
+
+export default withAdminProtection(StudentsPage);

@@ -8,6 +8,7 @@ import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from "recharts"
 import { CircularProgress } from "./ui/circular-progress"
 import { TrendingUp, GraduationCap, Award } from 'lucide-react'
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "./ui/accordion"
+import { StudentProgressDashboardSkeleton } from "./loaders/student-progress-dashboard-skeleton"
 
 interface Grade {
   id: string
@@ -63,7 +64,7 @@ export function StudentProgressDashboard({ studentId }: Props) {
   }, [studentId]);
 
   if (isLoading) {
-    return <div>Loading...</div>
+    return <StudentProgressDashboardSkeleton />
   }
 
   const averageGrade = grades.length 

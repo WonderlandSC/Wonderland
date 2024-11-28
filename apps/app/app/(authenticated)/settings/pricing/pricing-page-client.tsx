@@ -10,17 +10,15 @@ interface PricingPageClientProps {
 
 export function PricingPageClient({ hopGroups, growUpGroups }: PricingPageClientProps) {
   const pathname = usePathname()
-  const isSettingsPage = pathname === '/settings'
+  const isSettingsPage = pathname === '/settings/pricing'
 
   return (
-    <div className="container mx-auto py-8 space-y-8">
-      <h1 className="text-4xl font-bold text-center mb-12">Our Pricing Plans</h1>
+
       <PricingGrid 
-        hopGroups={hopGroups} 
-        growUpGroups={growUpGroups} 
+        hopGroups={hopGroups.reverse()} 
+        growUpGroups={growUpGroups.reverse()} 
         showSettings={isSettingsPage}
       />
-    </div>
   )
 }
 

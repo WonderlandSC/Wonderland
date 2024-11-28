@@ -8,7 +8,8 @@ import { Features } from './components/features';
 import { Hero } from './components/hero';
 import { Stats } from './components/stats';
 import { Testimonials } from './components/testimonials';
-import { PricingPageClient } from '../../../app/app/(authenticated)/settings/pricing-page-client';
+import { PricingPageClient } from '../../../app/app/(authenticated)/settings/pricing/pricing-page-client';
+import { PricingGrid } from '../../../app/app/(authenticated)/settings/pricing/pricing-grid';
 const meta = {
   title: 'Wonderland',
   description:
@@ -41,9 +42,11 @@ const Home = async () => {
         </div>
       )}
       <Hero />
-      <PricingPageClient 
-        hopGroups={hopGroups.reverse()}
-        growUpGroups={growUpGroups.reverse()}
+
+      <PricingGrid 
+        hopGroups={hopGroups.reverse()} 
+        growUpGroups={growUpGroups.reverse()} 
+        showSettings={false}
       />
       <Cases />
       <Features />

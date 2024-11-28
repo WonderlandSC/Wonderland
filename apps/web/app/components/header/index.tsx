@@ -118,11 +118,11 @@ export const Header = () => {
         <div className="flex items-center gap-2 lg:justify-center">
           <Link href="/">
           <Image
-            src="https://cdn.jsdelivr.net/gh/Ethereumistic/echo-ray-assets/logo/echoray-dark.png"
+            src="https://cdn.jsdelivr.net/gh/Ethereumistic/wonderland-assets/logo/wonderland.png"
             alt="Logo"
             width={200}
             height={100}
-            className="dark:invert"
+            className=""
           />
           </Link>
         </div>

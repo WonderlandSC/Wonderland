@@ -5,7 +5,7 @@ import { Card, CardContent } from "@repo/design-system/components/ui/card";
 import { ScrollArea } from "@repo/design-system/components/ui/scroll-area";
 import { CircularProgress } from "@repo/design-system/components/ui/circular-progress";
 import { TrendingUp, Clock } from 'lucide-react';
-
+import { StudentGradesViewSkeleton } from '@repo/design-system/components/loaders/student-grades-view-skeleton';
 interface Grade {
   id: string
   subject: string
@@ -66,12 +66,11 @@ export default function StudentGradesView({ studentId }: Props) {
   };
 
   if (isLoading) {
-    return <div>Loading grades...</div>;
+    return <StudentGradesViewSkeleton />;
   }
 
   return (
     <div className="space-y-4">
-      {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
           <CardContent className="p-6">
@@ -117,7 +116,7 @@ export default function StudentGradesView({ studentId }: Props) {
       {/* Grades List */}
       <Card>
         <CardContent className="p-4">
-          <ScrollArea className="h-[55vh] pr-4">
+          <ScrollArea className="h-[70vh] pr-4">
             {grades.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full text-center">
                 <p className="text-muted-foreground">No grades available</p>

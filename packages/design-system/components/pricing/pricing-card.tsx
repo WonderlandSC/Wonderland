@@ -56,17 +56,14 @@ export function PricingCard({ group, priceType, showSettings, isEarlyBirdTab, gr
 
   const isButtonDisabled = isEarlyBirdTab && !isEarlyBirdActive;
 
-  const cardColors = groupType === 'primary' 
-    ? 'bg-gradient-to-br from-purple-100 to-cyan-100 dark:from-purple-900 dark:to-cyan-900'
-    : 'bg-gradient-to-br from-purple-50 to-cyan-50 dark:from-purple-950 dark:to-cyan-950';
-
+  const cardBorderColor = groupType === 'primary' ? 'border-purple-200' : 'border-cyan-200';
   const buttonColors = groupType === 'primary'
     ? 'bg-purple-600 hover:bg-purple-700 text-white'
     : 'bg-cyan-600 hover:bg-cyan-700 text-white';
 
   return (
     <>
-      <Card className={`overflow-hidden transition-all duration-300 ease-in-out hover:shadow-lg ${cardColors}`}>
+      <Card className={`border-2 ${cardBorderColor} transition-all duration-300 ease-in-out hover:shadow-md`}>
         <CardHeader className="relative">
           {showSettings && (
             <Button
@@ -78,13 +75,13 @@ export function PricingCard({ group, priceType, showSettings, isEarlyBirdTab, gr
               <Settings className="h-4 w-4" />
             </Button>
           )}
-          <CardTitle className="text-2xl font-bold">{group.name}</CardTitle>
+          <CardTitle className="text-xl font-semibold">{group.name}</CardTitle>
           <CardDescription className="text-sm">{group.description}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
             <div className="flex items-baseline space-x-2">
-              <span className="text-3xl font-extrabold">
+              <span className="text-2xl font-bold">
                 {formatPrice(main)}
                 <span className="text-sm font-normal">{getPriceLabel()}</span>
               </span>

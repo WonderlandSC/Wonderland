@@ -201,6 +201,18 @@ const data = {
       icon: MapIcon,
     },
   ],
+    adminNavSecondary: [
+    {
+      title: 'Settings',
+      url: '/settings',
+      icon: Settings2Icon,
+    },
+    {
+      title: 'Reports',
+      url: '/reports',
+      icon: ClipboardListIcon,
+    }
+  ],
 };
 
 
@@ -215,9 +227,9 @@ export const GlobalSidebar = ({ children, userRole }: GlobalSidebarProperties) =
 const adminNav: NavItem[] = [
   {
     title: 'Dashboard',
-    url: '/dashboard',
+    url: '/',
     icon: PieChartIcon,
-    isActive: pathname === '/dashboard',
+    isActive: pathname === '/',
   },
   {
     title: 'Students',
@@ -232,20 +244,15 @@ const adminNav: NavItem[] = [
         url: `/students/${member.id}`,
       })),
   },
-      {
-        title: 'Grades',
-        url: '/grades',
-        icon: ClipboardListIcon,
-        isActive: pathname === '/grades',
-      },
+
     ];
 
     const studentNav: NavItem[] = [
       {
         title: 'My Dashboard',
-        url: '/dashboard',
+        url: '/',
         icon: PieChartIcon,
-        isActive: pathname === '/dashboard',
+        isActive: pathname === '/',
       },
       {
         title: 'My Grades',
@@ -343,7 +350,7 @@ React.useEffect(() => {
               ))}
             </SidebarMenu>
           </SidebarGroup>
-          <SidebarGroup className="group-data-[collapsible=icon]:hidden">
+          {/* <SidebarGroup className="group-data-[collapsible=icon]:hidden">
             <SidebarGroupLabel>Projects</SidebarGroupLabel>
             <SidebarMenu>
               {data.projects.map((item) => (
@@ -390,11 +397,12 @@ React.useEffect(() => {
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
-          </SidebarGroup>
+          </SidebarGroup> */}
           <SidebarGroup className="mt-auto">
             <SidebarGroupContent>
               <SidebarMenu>
-                {data.navSecondary.map((item) => (
+                {/* Show admin secondary nav only for teachers */}
+                {userRole === 'org:admin' && data.adminNavSecondary.map((item) => (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton asChild>
                       <a href={item.url}>
@@ -404,6 +412,7 @@ React.useEffect(() => {
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 ))}
+
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
