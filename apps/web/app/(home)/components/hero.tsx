@@ -11,29 +11,28 @@ export const Hero = () => (
         <div>
           <Button variant="secondary" size="sm" className="gap-4" asChild>
             <Link href={`/blog/${allPosts[0]._meta.path}`}>
-              Read our latest article <MoveRight className="h-4 w-4" />
+              Прочети последната ни статия <MoveRight className="h-4 w-4" />
             </Link>
           </Button>
         </div>
         <div className="flex flex-col gap-4">
           <h1 className="max-w-2xl text-center font-regular text-5xl tracking-tighter md:text-7xl">
-            This is the start of something new
+            Every adventure requires a first step
           </h1>
           <p className="max-w-2xl text-center text-lg text-muted-foreground leading-relaxed tracking-tight md:text-xl">
-            Managing a small business today is already tough. Avoid further
-            complications by ditching outdated, tedious trade methods. Our goal
-            is to streamline SMB trade, making it easier and faster than ever.
+            Вълнуващото изучаване на английски език започва тук! <br/>Ние предлагаме забавни и интерактивни уроци, специално създадени за деца, за да учат с радост и увереност.
+
           </p>
         </div>
         <div className="flex flex-row gap-3">
-          <Button size="lg" className="gap-4" variant="outline" asChild>
+          <Button size="lg" className="gap-4" asChild>
             <Link href="/contact">
-              Get in touch <PhoneCall className="h-4 w-4" />
+              Свържете се с нас <PhoneCall className="h-4 w-4" />
             </Link>
           </Button>
-          <Button size="lg" className="gap-4" asChild>
+          <Button size="lg"  variant="outline" className="gap-4" asChild>
             <Link href={env.NEXT_PUBLIC_APP_URL}>
-              Sign up <MoveRight className="h-4 w-4" />
+              Вход <MoveRight className="h-4 w-4" />
             </Link>
           </Button>
         </div>

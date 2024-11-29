@@ -9,6 +9,9 @@ import { Hero } from './components/hero';
 import { Stats } from './components/stats';
 import { Testimonials } from './components/testimonials';
 import { PricingGrid } from '../../../app/app/(authenticated)/settings/pricing/pricing-grid';
+import Work from './components/work';
+import Levels from './components/levels';
+import Activities from './components/activities';
 
 const meta = {
   title: 'Wonderland',
@@ -42,7 +45,9 @@ const Home = async () => {
         </div>
       )}
       <Hero />
-
+      <Work />
+      <Levels />
+      <Activities />
       <PricingGrid 
         hopGroups={hopGroups.reverse()} 
         growUpGroups={growUpGroups.reverse()} 
