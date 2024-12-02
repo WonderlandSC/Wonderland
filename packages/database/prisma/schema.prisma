@@ -52,3 +52,15 @@ model Grade {
 
   @@index([studentId])
 }
+
+model Invitation {
+  id             String    @id @default(cuid())
+  token          String    @unique
+  organizationId String
+  expiresAt      DateTime
+  usedAt         DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@index([token])
+}

@@ -27,6 +27,15 @@ class ExtendedPrismaClient extends PrismaClient {
     // Assuming value is an object with group details
     this.group.create({ data: value }); // Create a new group
   }
+
+    get invitation() {
+    return this.invitation.findMany(); // Fetch all invitations
+  }
+  
+  set invitation(value: any) {
+    // Assuming value is an object with invitation details
+    this.invitation.create({ data: value }); // Create a new invitation
+  }
 }
 
 const database = new ExtendedPrismaClient()

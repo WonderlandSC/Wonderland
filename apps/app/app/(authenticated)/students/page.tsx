@@ -5,11 +5,13 @@ import { useState } from 'react';
 import { Button } from "@repo/design-system/components/ui/button";
 import { useToast } from "@repo/design-system/components/ui/use-toast";
 import { GroupTabs } from '@repo/design-system/components/groups/GroupTabs';
-import { withAdminProtection } from '../components/protected-route';
+// import { withAdminProtection } from '../components/protected-route';
+import { useOrganization } from '@clerk/nextjs';
 
  function StudentsPage() {
   const [isCreateGroupModalOpen, setIsCreateGroupModalOpen] = useState(false);
   const { toast } = useToast();
+  const { organization } = useOrganization();
 
 
   const handleCreateGroup = async (groupData: {
@@ -50,11 +52,51 @@ import { withAdminProtection } from '../components/protected-route';
     }
   };
 
+  const generateInviteLink = async () => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/invitations`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          organizationId: organization?.id,
+        }),
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to generate invite link');
+      }
+
+      const { inviteUrl } = await response.json();
+      
+      // Copy to clipboard
+      await navigator.clipboard.writeText(inviteUrl);
+      
+      toast({
+        title: "Success",
+        description: "Invite link copied to clipboard! Link will expire in 24 hours.",
+      });
+    } catch (error) {
+      console.error('Error generating invite link:', error);
+      toast({
+        title: "Error",
+        description: "Failed to generate invite link",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Students</h1>
         <div className="space-x-2">
+          <Button onClick={generateInviteLink}>
+            Generate Invite Link
+          </Button>
+
           <Button onClick={() => setIsCreateGroupModalOpen(true)}>
             Create Group
           </Button>
@@ -73,4 +115,6 @@ import { withAdminProtection } from '../components/protected-route';
   );
 }
 
-export default withAdminProtection(StudentsPage);
+export default StudentsPage;
+
+// export default withAdminProtection(StudentsPage);

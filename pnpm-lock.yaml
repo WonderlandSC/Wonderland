@@ -59,6 +59,12 @@ importers:
       '@sentry/nextjs':
         specifier: ^8.38.0
         version: 8.38.0(@opentelemetry/core@1.27.0)(@opentelemetry/instrumentation@0.54.2)(@opentelemetry/sdk-trace-base@1.27.0)(next@15.0.3)(react@18.3.1)(webpack@5.96.1)
+      date-fns:
+        specifier: ^4.1.0
+        version: 4.1.0
+      nanoid:
+        specifier: ^5.0.9
+        version: 5.0.9
       next:
         specifier: 15.0.3
         version: 15.0.3(@babel/core@7.26.0)(@opentelemetry/api@1.9.0)(react-dom@18.3.1)(react@18.3.1)
@@ -10314,6 +10320,12 @@ packages:
     resolution: {integrity: sha512-eSRppjcPIatRIMC1U6UngP8XFcz8MQWGQdt1MTBQ7NaAmvXDfvNxbvWV3x2y6CdEUciCSsDHDQZbhYaB8QEo2g==}
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
     hasBin: true
+
+  /nanoid@5.0.9:
+    resolution: {integrity: sha512-Aooyr6MXU6HpvvWXKoVoXwKMs/KyVakWwg7xQfv5/S/RIgJMy0Ifa45H9qqYy7pTCszrHzP21Uk4PZq2HpEM8Q==}
+    engines: {node: ^18 || >=20}
+    hasBin: true
+    dev: false
 
   /napi-build-utils@1.0.2:
     resolution: {integrity: sha512-ONmRUqK7zj7DWX0D9ADe03wbwOBZxNAfF20PlGfCWQcD3+/MakShIHrMqx9YwPTfxDdF1zLeL+RGZiR9kGMLdg==}
