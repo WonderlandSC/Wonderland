@@ -4,6 +4,9 @@ import { redirect } from 'next/navigation';
 import { DashboardClient } from './DashboardClient';
 import { ErrorBoundary } from '@repo/design-system/components/ui/error-boundary';
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+
 export default async function Dashboard() {
   try {
     const { userId } = await auth();
