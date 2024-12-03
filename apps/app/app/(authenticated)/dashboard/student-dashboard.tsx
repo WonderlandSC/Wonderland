@@ -47,7 +47,7 @@ export function StudentProgressDashboard({ userId }: Props) {
         const token = await getToken();
 
         if (!token) {
-          setError('Authentication token not available');
+          setError('Authentication token not available!');
           return;
         }
 
