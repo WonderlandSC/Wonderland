@@ -14,7 +14,6 @@ import { auth } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
 import { StudentProgressDashboard } from '@repo/design-system/components/student-progress-dashboard';
 import { Suspense } from 'react';
-import { getCurrentUserMembership } from '../students/utils'
 
 const Dashboard = async () => {
   try {
@@ -26,25 +25,27 @@ const Dashboard = async () => {
       return null;
     }
 
-    const userMembership = await getCurrentUserMembership();
-    if (!userMembership) {
-      console.log('[DEBUG] No user membership found');
+    const user = await database.student.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      console.log('[DEBUG] No user found');
       return (
         <div className="container mx-auto py-6">
-          <h1 className="text-2xl font-bold mb-6">No Membership</h1>
-          <p>You are not associated with any organization. Please contact support.</p>
+          <h1 className="text-2xl font-bold mb-6">Account Not Found</h1>
+          <p>Your account hasn't been synchronized with the system yet. Please contact your teacher or administrator.</p>
         </div>
       );
     }
 
-    console.log('[DEBUG] userMembership:', {
-      id: userMembership.id,
-      role: userMembership.role,
-      userId: userMembership.publicUserData?.userId,
+    console.log('[DEBUG] user:', {
+      id: user.id,
+      role: user.role,
     });
 
-    const isTeacher = userMembership.role === 'org:admin';
-    console.log('[DEBUG] isTeacher:', isTeacher, 'role:', userMembership.role);
+    const isTeacher = user.role === 'teacher';
+    console.log('[DEBUG] isTeacher:', isTeacher);
 
     if (isTeacher) {
       console.log('[DEBUG] Rendering teacher dashboard');
@@ -62,24 +63,6 @@ const Dashboard = async () => {
         </>
       );
     }
-
-    console.log('[DEBUG] Not a teacher, checking for student record');
-    const student = await database.student.findUnique({
-      where: {
-        clerkId: userId,
-      },
-    });
-    console.log('[DEBUG] Student record:', student);
-
-    if (!student) {
-      return (
-        <div className="container mx-auto py-6">
-          <h1 className="text-2xl font-bold mb-6">Account Not Synchronized</h1>
-          <p>Your account hasn't been synchronized with the system yet. Please contact your teacher or administrator.</p>
-        </div>
-      );
-    }
-
     return (
       <>
         <header className="flex h-16 shrink-0 items-center gap-2">
@@ -98,7 +81,7 @@ const Dashboard = async () => {
         <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
           <div className="container mx-auto">
             <StudentProgressDashboard 
-              studentId={student.id}
+              studentId={user.id}
               isLoading={false}
               grades={[]}
             />

@@ -9,18 +9,24 @@ datasource db {
   relationMode = "prisma"
 }
 
+enum Teacher {
+  MIHAELA
+  VYARA
+  BELLA
+}
+
 model Student {
-  id             String   @id @default(cuid())
-  firstName      String
-  lastName       String
-  email          String
-  clerkId        String   @unique
-  organizationId String
-  grades         Grade[]
-  groupId        String?
-  group          Group?   @relation(fields: [groupId], references: [id])
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  id        String   @id
+  role      String   @default("student")
+  firstName String
+  lastName  String
+  email     String
+  teacher   Teacher?
+  grades    Grade[]
+  groupId   String?
+  group     Group?   @relation(fields: [groupId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([groupId])
 }

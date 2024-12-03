@@ -10,8 +10,11 @@ interface Student {
   id: string;
   firstName: string;
   lastName: string;
+  group?: {
+    id: string;
+    name: string;
+  } | null;
 }
-
 interface AddStudentModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -93,21 +96,28 @@ const handleAddStudents = async () => {
         </DialogHeader>
         <div className="space-y-4">
           {availableStudents.map((student) => (
-            <div key={student.id} className="flex items-center space-x-2">
-              <Checkbox
-                id={student.id}
-                checked={selectedStudents.includes(student.id)}
-                onCheckedChange={(checked) => {
-                  setSelectedStudents(
-                    checked
-                      ? [...selectedStudents, student.id]
-                      : selectedStudents.filter((id) => id !== student.id)
-                  );
-                }}
-              />
-              <label htmlFor={student.id}>
-                {student.firstName} {student.lastName}
-              </label>
+            <div key={student.id} className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id={student.id}
+                  checked={selectedStudents.includes(student.id)}
+                  onCheckedChange={(checked) => {
+                    setSelectedStudents(
+                      checked
+                        ? [...selectedStudents, student.id]
+                        : selectedStudents.filter((id) => id !== student.id)
+                    );
+                  }}
+                />
+                <label htmlFor={student.id} className="flex items-center gap-2">
+                  <span>{student.firstName} {student.lastName}</span>
+                  {student.group && (
+                    <span className="text-xs px-2 py-1 rounded-full bg-muted text-muted-foreground">
+                      {student.group.name}
+                    </span>
+                  )}
+                </label>
+              </div>
             </div>
           ))}
         </div>

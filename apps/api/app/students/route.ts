@@ -18,36 +18,19 @@ export async function OPTIONS() {
 
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
-    const excludeGroup = searchParams.get('excludeGroup');
+    const students = await database.student.findMany({
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        email: true,
+        role: true,  // Make sure to include this!
+        teacher: true,
+        groupId: true,
+        group: true,
+      },
+    });
 
-    let students;
-
-    if (excludeGroup) {
-      students = await database.student.findMany({
-        where: {
-          OR: [
-            { groupId: null },
-            { groupId: { not: excludeGroup } }
-          ]
-        },
-        select: {
-          id: true, // This should be returning the orgmem ID
-          firstName: true,
-          lastName: true,
-        },
-      });
-    } else {
-      students = await database.student.findMany({
-        select: {
-          id: true, // This should be returning the orgmem ID
-          firstName: true,
-          lastName: true,
-        },
-      });
-    }
-
-    console.log('Fetched students:', students); // Debug log
     return Response.json({ students }, { headers: corsHeaders });
   } catch (error) {
     console.error('Error fetching students:', error);

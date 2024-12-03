@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { database } from '@repo/database';
-import { clerkClient } from '@clerk/nextjs/server';
-
+import { auth, clerkClient } from '@clerk/nextjs/server';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
@@ -19,7 +18,6 @@ export async function OPTIONS() {
 }
 
 export async function POST(request: NextRequest) {
-  // Add CORS headers to the response
   if (request.method === 'OPTIONS') {
     return new NextResponse(null, {
       status: 204,
@@ -28,47 +26,40 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const { organizationId } = await request.json();
-    
-    if (!organizationId) {
-      return NextResponse.json({ error: 'Organization ID required' }, { status: 400 });
+    // Check authentication
+    const { userId } = await auth();
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    // Fetch all users from Clerk
     const clerk = await clerkClient();
-    const memberships = await clerk.organizations.getOrganizationMembershipList({
-      organizationId,
-    });
+    const { data: users } = await clerk.users.getUserList();
     
-    const students = memberships.data.filter(
-      (member) => member.role !== 'org:admin'
-    );
-
-    for (const member of students) {
-      if (!member.publicUserData?.userId) continue;
-
-      const user = await clerk.users.getUser(member.publicUserData.userId);
-
+    // Sync each user to the database
+    for (const user of users) {
       await database.student.upsert({
-        where: { clerkId: user.id },
+        where: { id: user.id },
         update: {
-          firstName: user.firstName || '',
-          lastName: user.lastName || '',
+          firstName: user.firstName || 'Unknown',
+          lastName: user.lastName || 'Unknown',
           email: user.emailAddresses[0]?.emailAddress || '',
-          organizationId,
         },
         create: {
-          id: member.id,
-          clerkId: user.id,
-          firstName: user.firstName || '',
-          lastName: user.lastName || '',
+          id: user.id,
+          firstName: user.firstName || 'Unknown',
+          lastName: user.lastName || 'Unknown',
           email: user.emailAddresses[0]?.emailAddress || '',
-          organizationId,
+          role: 'student', // default role
         },
       });
     }
 
-    return NextResponse.json({ success: true }, { 
-      headers: corsHeaders  // This is correct
+    return NextResponse.json({ 
+      success: true,
+      syncedCount: users.length 
+    }, { 
+      headers: corsHeaders
     });
   } catch (error) {
     console.error('Sync error:', error);

@@ -1,5 +1,6 @@
 import { NextRequest } from 'next/server';
 import { database } from '@repo/database';
+import { auth } from '@clerk/nextjs/server';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
@@ -21,6 +22,20 @@ export async function PUT(
   { params }: { params: Promise<{ id: string; gradeId: string }> }
 ) {
   try {
+    const { userId } = await auth();
+    if (!userId) {
+      return Response.json({ error: 'Unauthorized' }, { status: 401, headers: corsHeaders });
+    }
+
+    // Check if the user is a teacher
+    const teacher = await database.student.findUnique({
+      where: { id: userId },
+    });
+
+    if (!teacher || teacher.role !== 'teacher') {
+      return Response.json({ error: 'Unauthorized' }, { status: 403, headers: corsHeaders });
+    }
+
     const { id, gradeId } = await params;
     console.log('Received PUT request for student:', id, 'grade:', gradeId);
 

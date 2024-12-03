@@ -13,7 +13,7 @@ export default async function StudentGradesPage() {
 
   const student = await database.student.findUnique({
     where: {
-      clerkId: userId,
+      id: userId,
     },
   });
 

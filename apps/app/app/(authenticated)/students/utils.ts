@@ -1,39 +1,17 @@
-import { auth, OrganizationMembership } from '@clerk/nextjs/server';
-import { clerkClient } from '@clerk/nextjs/server';
-import { notFound } from 'next/navigation';
+import { database } from '@repo/database';
 
-export async function getStudentData(membershipId: string) {
-  const { orgId } = await auth();
-  if (!orgId) notFound();
+export async function getStudentData(id: string) {
+  try {
+    const student = await database.student.findUnique({
+      where: { id },
+      include: {
+        grades: true,
+      },
+    });
 
-  const clerk = await clerkClient();
-  const memberships = await clerk.organizations.getOrganizationMembershipList({
-    organizationId: orgId
-  });
-  
-  const orgMembership = memberships.data.find((m: OrganizationMembership) => 
-    m.id === membershipId
-  );
-  if (!orgMembership || !orgMembership.publicUserData?.userId) notFound();
-
-  const student = await clerk.users.getUser(orgMembership.publicUserData.userId);
-  
-  return {
-    membership: orgMembership,
-    student
-  };
-}
-
-export async function getCurrentUserMembership() {
-  const { userId, orgId } = await auth();
-  if (!orgId || !userId) return null;
-
-  const clerk = await clerkClient();
-  const memberships = await clerk.organizations.getOrganizationMembershipList({
-    organizationId: orgId
-  });
-  
-  return memberships.data.find((m: OrganizationMembership) => 
-    m.publicUserData?.userId === userId
-  );
+    return { student };
+  } catch (error) {
+    console.error('Error fetching student:', error);
+    return { student: null };
+  }
 }
