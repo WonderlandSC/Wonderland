@@ -1,13 +1,6 @@
 import { NextRequest } from 'next/server';
 import { database } from '@repo/database';
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
-  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-  'Access-Control-Allow-Credentials': 'true',
-  'Access-Control-Max-Age': '86400',
-} as const;
+import { corsHeaders, handleCors } from '../../../lib/cors';
 
 export async function OPTIONS() {
   return new Response(null, {
@@ -31,10 +24,10 @@ export async function PUT(
 
     if (!name || !description) {
       console.log('Validation failed: missing required fields');
-      return Response.json(
+      return handleCors(Response.json(
         { error: 'Name and description are required' },
-        { status: 400, headers: corsHeaders }
-      );
+        { status: 400 }
+      ));
     }
 
     const updatedGroup = await database.group.update({
@@ -53,15 +46,12 @@ export async function PUT(
 
     console.log('Group updated successfully:', updatedGroup);
 
-    return Response.json({ group: updatedGroup }, { 
-      status: 200,
-      headers: corsHeaders 
-    });
+    return handleCors(Response.json({ group: updatedGroup }));
   } catch (error) {
     console.error('Error updating group:', error);
-    return Response.json(
+    return handleCors(Response.json(
       { error: 'Failed to update group', details: error instanceof Error ? error.message : 'Unknown error' },
-      { status: 500, headers: corsHeaders }
-    );
+      { status: 500 }
+    ));
   }
 }

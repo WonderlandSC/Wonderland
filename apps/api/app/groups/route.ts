@@ -1,13 +1,6 @@
 import { NextRequest } from 'next/server';
 import { database } from '@repo/database';
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
-  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-  'Access-Control-Allow-Credentials': 'true',
-  'Access-Control-Max-Age': '86400',
-} as const;
+import { corsHeaders, handleCors } from '../../lib/cors';
 
 export async function OPTIONS() {
   return new Response(null, {
@@ -24,10 +17,10 @@ export async function GET() {
       },
     });
 
-    return Response.json({ groups }, { headers: corsHeaders });
+    return handleCors(Response.json({ groups }));
   } catch (error) {
     console.error('Error fetching groups:', error);
-    return Response.json({ groups: [] }, { headers: corsHeaders });
+    return handleCors(Response.json({ groups: [] }));
   }
 }
 
@@ -36,10 +29,10 @@ export async function POST(request: NextRequest) {
     const { name, description, regularPrice, earlyBirdPrice, earlyBirdDeadline, schedule } = await request.json();
 
     if (!name || regularPrice === undefined || earlyBirdPrice === undefined || !earlyBirdDeadline || !schedule) {
-      return Response.json(
+      return handleCors(Response.json(
         { error: 'Name, regularPrice, earlyBirdPrice, earlyBirdDeadline, and schedule are required' },
-        { status: 400, headers: corsHeaders }
-      );
+        { status: 400 }
+      ));
     }
 
     const group = await database.group.create({
@@ -53,12 +46,12 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    return Response.json({ group }, { headers: corsHeaders });
+    return handleCors(Response.json({ group }));
   } catch (error) {
     console.error('Error creating group:', error);
-    return Response.json(
+    return handleCors(Response.json(
       { error: 'Failed to create group' },
-      { status: 500, headers: corsHeaders }
-    );
+      { status: 500 }
+    ));
   }
 }

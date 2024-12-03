@@ -1,14 +1,7 @@
 import { NextRequest } from 'next/server';
 import { database } from '@repo/database';
 import { auth } from '@clerk/nextjs/server';
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
-  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-  'Access-Control-Allow-Credentials': 'true',
-  'Access-Control-Max-Age': '86400',
-} as const;
+import { corsHeaders, handleCors } from '../../../../../lib/cors';
 
 export async function OPTIONS() {
   return new Response(null, {
@@ -24,16 +17,15 @@ export async function PUT(
   try {
     const { userId } = await auth();
     if (!userId) {
-      return Response.json({ error: 'Unauthorized' }, { status: 401, headers: corsHeaders });
+      return handleCors(Response.json({ error: 'Unauthorized' }, { status: 401 }));
     }
 
-    // Check if the user is a teacher
     const teacher = await database.student.findUnique({
       where: { id: userId },
     });
 
     if (!teacher || teacher.role !== 'teacher') {
-      return Response.json({ error: 'Unauthorized' }, { status: 403, headers: corsHeaders });
+      return handleCors(Response.json({ error: 'Unauthorized' }, { status: 403 }));
     }
 
     const { id, gradeId } = await params;
@@ -46,10 +38,10 @@ export async function PUT(
 
     if (!subject || value === undefined) {
       console.log('Validation failed: missing subject or value');
-      return Response.json(
+      return handleCors(Response.json(
         { error: 'Subject and value are required' },
-        { status: 400, headers: corsHeaders }
-      );
+        { status: 400 }
+      ));
     }
 
     const updatedGrade = await database.grade.update({
@@ -66,15 +58,12 @@ export async function PUT(
 
     console.log('Grade updated successfully:', updatedGrade);
 
-    return Response.json({ grade: updatedGrade }, { 
-      status: 200,
-      headers: corsHeaders 
-    });
+    return handleCors(Response.json({ grade: updatedGrade }));
   } catch (error) {
     console.error('Error updating grade:', error);
-    return Response.json(
+    return handleCors(Response.json(
       { error: 'Failed to update grade', details: error instanceof Error ? error.message : 'Unknown error' },
-      { status: 500, headers: corsHeaders }
-    );
+      { status: 500 }
+    ));
   }
 }

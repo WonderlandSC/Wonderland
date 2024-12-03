@@ -9,11 +9,14 @@ import {
 } from '@repo/design-system/components/ui/breadcrumb';
 import { Separator } from '@repo/design-system/components/ui/separator';
 import { SidebarTrigger } from '@repo/design-system/components/ui/sidebar';
-import type { Metadata } from 'next';
 import { auth } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
 import { StudentProgressDashboard } from '@repo/design-system/components/student-progress-dashboard';
 import { Suspense } from 'react';
+
+// Add these two lines to mark the route as dynamic
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 const Dashboard = async () => {
   try {

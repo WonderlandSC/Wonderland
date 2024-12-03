@@ -1,14 +1,7 @@
 import { NextRequest } from 'next/server';
 import { database } from '@repo/database';
 import { auth } from '@clerk/nextjs/server';
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
-  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS, DELETE',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-  'Access-Control-Allow-Credentials': 'true',
-  'Access-Control-Max-Age': '86400',
-} as const;
+import { corsHeaders, handleCors } from '../../../../lib/cors';
 
 export async function OPTIONS() {
   return new Response(null, {
@@ -24,23 +17,21 @@ export async function GET(
   try {
     const { userId } = await auth();
     if (!userId) {
-      return Response.json({ error: 'Unauthorized' }, { status: 401, headers: corsHeaders });
+      return handleCors(Response.json({ error: 'Unauthorized' }, { status: 401 }));
     }
 
     const { id } = await params;
 
-    // Check if the requesting user is a teacher or the student themselves
     const requestingUser = await database.student.findUnique({
       where: { id: userId },
     });
 
     if (!requestingUser) {
-      return Response.json({ error: 'User not found' }, { status: 404, headers: corsHeaders });
+      return handleCors(Response.json({ error: 'User not found' }, { status: 404 }));
     }
 
-    // Only allow access if user is a teacher or accessing their own grades
     if (requestingUser.role !== 'teacher' && userId !== id) {
-      return Response.json({ error: 'Unauthorized' }, { status: 403, headers: corsHeaders });
+      return handleCors(Response.json({ error: 'Unauthorized' }, { status: 403 }));
     }
 
     const grades = await database.grade.findMany({
@@ -55,10 +46,10 @@ export async function GET(
       },
     });
 
-    return Response.json({ grades }, { headers: corsHeaders });
+    return handleCors(Response.json({ grades }));
   } catch (error) {
     console.error('Error fetching grades:', error);
-    return Response.json({ grades: [] }, { headers: corsHeaders });
+    return handleCors(Response.json({ grades: [] }));
   }
 }
 
@@ -69,26 +60,25 @@ export async function POST(
   try {
     const { userId } = await auth();
     if (!userId) {
-      return Response.json({ error: 'Unauthorized' }, { status: 401, headers: corsHeaders });
+      return handleCors(Response.json({ error: 'Unauthorized' }, { status: 401 }));
     }
 
-    // Check if the user is a teacher
     const teacher = await database.student.findUnique({
       where: { id: userId },
     });
 
     if (!teacher || teacher.role !== 'teacher') {
-      return Response.json({ error: 'Unauthorized' }, { status: 403, headers: corsHeaders });
+      return handleCors(Response.json({ error: 'Unauthorized' }, { status: 403 }));
     }
 
     const { id } = await params;
     const { subject, value, description } = await request.json();
 
     if (!subject || value === undefined) {
-      return Response.json(
+      return handleCors(Response.json(
         { error: 'Subject and value are required' },
-        { status: 400, headers: corsHeaders }
-      );
+        { status: 400 }
+      ));
     }
 
     const grade = await database.grade.create({
@@ -103,13 +93,13 @@ export async function POST(
       },
     });
 
-    return Response.json({ grade }, { headers: corsHeaders });
+    return handleCors(Response.json({ grade }));
   } catch (error) {
     console.error('Error creating grade:', error);
-    return Response.json(
+    return handleCors(Response.json(
       { error: 'Failed to create grade' },
-      { status: 500, headers: corsHeaders }
-    );
+      { status: 500 }
+    ));
   }
 }
 
@@ -120,16 +110,15 @@ export async function DELETE(
   try {
     const { userId } = await auth();
     if (!userId) {
-      return Response.json({ error: 'Unauthorized' }, { status: 401, headers: corsHeaders });
+      return handleCors(Response.json({ error: 'Unauthorized' }, { status: 401 }));
     }
 
-    // Check if the user is a teacher
     const teacher = await database.student.findUnique({
       where: { id: userId },
     });
 
     if (!teacher || teacher.role !== 'teacher') {
-      return Response.json({ error: 'Unauthorized' }, { status: 403, headers: corsHeaders });
+      return handleCors(Response.json({ error: 'Unauthorized' }, { status: 403 }));
     }
 
     const { id } = await params;
@@ -142,12 +131,12 @@ export async function DELETE(
       },
     });
 
-    return Response.json({ success: true }, { headers: corsHeaders });
+    return handleCors(Response.json({ success: true }));
   } catch (error) {
     console.error('Error deleting grades:', error);
-    return Response.json(
+    return handleCors(Response.json(
       { error: 'Failed to delete grades' },
-      { status: 500, headers: corsHeaders }
-    );
+      { status: 500 }
+    ));
   }
 }

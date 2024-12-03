@@ -1,40 +1,50 @@
 'use client';
 
 import { Button } from '@repo/design-system/components/ui/button';
-import { useUser } from '@clerk/nextjs';
+import { useAuth } from '@clerk/nextjs';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useToast } from "@repo/design-system/components/ui/use-toast";
 
 export function SyncStudentsButton() {
   const [isSyncing, setIsSyncing] = useState(false);
   const router = useRouter();
+  const { getToken } = useAuth();
+  const { toast } = useToast();
 
   const syncStudents = async () => {
     setIsSyncing(true);
     try {
+      const token = await getToken();
+      
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/students/sync`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
         },
         credentials: 'include',
       });
 
       if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`Sync failed: ${errorText}`);
+        const error = await response.json();
+        throw new Error(error.error || 'Sync failed');
       }
       
       const data = await response.json();
-      console.log(`Successfully synced ${data.syncedCount} users`);
+      toast({
+        title: "Success",
+        description: `Successfully synced ${data.syncedCount} users`,
+      });
       
       router.refresh();
     } catch (error) {
-      if (error instanceof Error) {
-        console.error('Sync error:', error.message);
-      } else {
-        console.error('Unknown sync error:', error);
-      }
+      console.error('Sync error:', error);
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : 'Failed to sync users',
+        variant: "destructive",
+      });
     } finally {
       setIsSyncing(false);
     }

@@ -1,15 +1,7 @@
 import { NextRequest } from 'next/server';
 import { database } from '@repo/database';
+import { corsHeaders, handleCors } from '../../../../lib/cors';
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
-  'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization, credentials',
-  'Access-Control-Allow-Credentials': 'true',
-  'Access-Control-Max-Age': '86400',
-} as const;
-
-// Make sure the OPTIONS handler includes these headers
 export async function OPTIONS() {
   return new Response(null, {
     status: 204,
@@ -35,44 +27,36 @@ export async function GET(
       },
     });
 
-    return Response.json({ students }, { headers: corsHeaders });
+    return handleCors(Response.json({ students }));
   } catch (error) {
     console.error('Error fetching students:', error);
-    return Response.json(
+    return handleCors(Response.json(
       { error: 'Failed to fetch students' }, 
-      { status: 500, headers: corsHeaders }
-    );
+      { status: 500 }
+    ));
   }
 }
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: Promise<{ groupId: string }> }  // Changed to Promise type
+  { params }: { params: Promise<{ groupId: string }> }
 ) {
   try {
-    const { groupId } = await params;  // Added await here
+    const { groupId } = await params;
     const body = await request.json();
     const { studentIds } = body;
 
-    console.log('Received groupId:', groupId); // Debug log
-    console.log('Received studentIds:', studentIds); // Debug log
-
     if (!studentIds || !Array.isArray(studentIds)) {
-      return Response.json(
+      return handleCors(Response.json(
         { error: 'Student IDs are required and must be an array' },
-        { status: 400, headers: corsHeaders }
-      );
+        { status: 400 }
+      ));
     }
 
-    // Update multiple students
     const updatePromises = studentIds.map(studentId =>
       database.student.update({
-        where: { 
-          id: studentId
-        },
-        data: { 
-          groupId: groupId 
-        },
+        where: { id: studentId },
+        data: { groupId: groupId },
         select: {
           id: true,
           firstName: true,
@@ -82,46 +66,39 @@ export async function POST(
     );
 
     const addedStudents = await Promise.all(updatePromises);
-    console.log('Added students:', addedStudents); // Debug log
 
-    return Response.json(
-      { addedStudents }, 
-      { headers: corsHeaders }
-    );
+    return handleCors(Response.json({ addedStudents }));
   } catch (error) {
     console.error('Error adding students to group:', error);
-    return Response.json(
+    return handleCors(Response.json(
       { error: 'Failed to add students to group', details: error instanceof Error ? error.message : 'Unknown error' },
-      { status: 500, headers: corsHeaders }
-    );
+      { status: 500 }
+    ));
   }
 }
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: Promise<{ groupId: string }> }  // Changed to Promise type
+  { params }: { params: Promise<{ groupId: string }> }
 ) {
   try {
-    const { groupId } = await params;  // Added await here
+    const { groupId } = await params;
     const { studentIds } = await request.json();
 
     if (!studentIds || !Array.isArray(studentIds)) {
-      return Response.json(
+      return handleCors(Response.json(
         { error: 'Student IDs are required and must be an array' },
-        { status: 400, headers: corsHeaders }
-      );
+        { status: 400 }
+      ));
     }
 
-    // Update multiple students
     const updatePromises = studentIds.map(studentId =>
       database.student.update({
         where: { 
           id: studentId,
-          groupId: groupId, // Ensure student is in this group
+          groupId: groupId,
         },
-        data: { 
-          groupId: null 
-        },
+        data: { groupId: null },
         select: {
           id: true,
           firstName: true,
@@ -131,17 +108,13 @@ export async function DELETE(
     );
 
     const removedStudents = await Promise.all(updatePromises);
-    console.log('Removed students:', removedStudents); // Debug log
 
-    return Response.json(
-      { removedStudents }, 
-      { headers: corsHeaders }
-    );
+    return handleCors(Response.json({ removedStudents }));
   } catch (error) {
     console.error('Error removing students from group:', error);
-    return Response.json(
+    return handleCors(Response.json(
       { error: 'Failed to remove students from group', details: error instanceof Error ? error.message : 'Unknown error' },
-      { status: 500, headers: corsHeaders }
-    );
+      { status: 500 }
+    ));
   }
 }
