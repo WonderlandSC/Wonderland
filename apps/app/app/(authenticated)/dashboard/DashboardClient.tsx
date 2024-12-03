@@ -13,38 +13,36 @@ interface Props {
 }
 
 export function DashboardClient({ userId, initialRole }: Props) {
-  const { getToken } = useAuth();
+  const { getToken, isLoaded } = useAuth();
   const [grades, setGrades] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!isLoaded) return; // Don't fetch until auth is loaded
+
     const fetchGrades = async () => {
       try {
         setError(null);
         const token = await getToken();
-        console.log('[DEBUG] Fetching grades for userId:', userId);
         
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/students/${userId}/grades`,
-          {
-            headers: {
-              'Authorization': `Bearer ${token}`,
-            },
-            credentials: 'include',
-          }
-        );
+        if (!token) {
+          setError('Authentication token not available');
+          return;
+        }
+
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/students/${userId}/grades`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
         if (!response.ok) {
-          console.error('[ERROR] Failed to fetch grades:', response.status, response.statusText);
-          const errorData = await response.text();
-          console.error('[ERROR] Error response:', errorData);
-          throw new Error(`Failed to fetch grades: ${response.status} ${response.statusText}`);
+          throw new Error('Failed to fetch grades');
         }
 
         const data = await response.json();
-        console.log('[DEBUG] Grades data:', data);
-        setGrades(data.grades || []);
+        setGrades(data.grades);
       } catch (error) {
         console.error('[ERROR] Error fetching grades:', error);
         setError(error instanceof Error ? error.message : 'Failed to fetch grades');
@@ -55,7 +53,12 @@ export function DashboardClient({ userId, initialRole }: Props) {
     };
 
     fetchGrades();
-  }, [userId, getToken]);
+  }, [userId, getToken, isLoaded]);
+
+  // Add loading state for auth
+  if (!isLoaded) {
+    return <div>Loading...</div>;
+  }
 
   if (error) {
     return (

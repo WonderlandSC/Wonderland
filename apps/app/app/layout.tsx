@@ -12,6 +12,7 @@ const RootLayout = ({ children }: RootLayoutProperties) => (
   <html lang="en" className={fonts} suppressHydrationWarning>
     <body>
       <ClerkProvider
+        dynamic={true}
         appearance={{
           baseTheme: undefined,
           variables: { colorPrimary: '#000000' },
