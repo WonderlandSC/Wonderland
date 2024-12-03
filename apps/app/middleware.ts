@@ -1,50 +1,45 @@
-import { clerkMiddleware, type ClerkMiddlewareAuth } from "@clerk/nextjs/server";
-import { NextResponse } from "next/server";
+import { clerkMiddleware, clerkClient } from '@clerk/nextjs/server';
+import { NextResponse } from 'next/server';
 
-const publicRoutes = [
-  "/sign-in",
-  "/sign-up",
-  "/api/invitations/verify",
-  "/api/invitations/complete",
-  "/sign-up/verify-email-address",
-  "/verify-email",
-  "/.well-known/*",
-  "/",
-];
-
-const middlewareHandler = clerkMiddleware(async (auth: ClerkMiddlewareAuth, req) => {
+export default clerkMiddleware(async (auth, req) => {
   const url = new URL(req.url);
   const path = url.pathname;
 
-  // Allow public paths and paths with tokens
-  if (publicRoutes.some(publicPath => path.startsWith(publicPath)) || url.searchParams.has('token')) {
-    return NextResponse.next();
-  }
+  // Check if accessing protected routes
+  if (path.startsWith('/settings') || path.startsWith('/students')) {
+    try {
+      const authData = await auth();
+      if (!authData.userId) {
+        return NextResponse.redirect(new URL('/dashboard', req.url));
+      }
 
-  // Check authentication for protected routes
-  const isProtectedRoute = path.startsWith('/settings') || path.startsWith('/students');
-  if (isProtectedRoute) {
-    const authObject = await auth();
-    console.log("Resolved auth object:", authObject);
+      const clerk = await clerkClient();
+      const user = await clerk.users.getUser(authData.userId);
+      const role = user.publicMetadata.role as string;
 
-    const userId = authObject.userId;
-    const orgId = authObject.orgId;
-    const orgRole = authObject.sessionClaims?.org_role;
+      if (!role || role === 'student') {
+        return NextResponse.redirect(new URL('/dashboard', req.url));
+      }
 
-    if (!userId || !orgId || orgRole !== "org:admin") {
-      return NextResponse.redirect(new URL('/sign-in', req.url));
+      // Explicitly allow the request to continue
+      return NextResponse.next({
+        headers: {
+          'x-middleware-cache': 'no-cache',
+          'x-role': role,
+        },
+      });
+    } catch (error) {
+      return NextResponse.redirect(new URL('/dashboard', req.url));
     }
   }
 
   return NextResponse.next();
 });
 
-export default middlewareHandler;
-
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|public/).*)",
-    "/",
-    "/(api|trpc)(.*)",
+    '/((?!.+\\.[\\w]+$|_next).*)',
+    '/',
+    '/(api|trpc)(.*)',
   ],
 };

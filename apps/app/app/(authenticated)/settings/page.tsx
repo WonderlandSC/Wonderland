@@ -1,4 +1,4 @@
-// apps/app/app/(authenticated)/settings/page.tsx
+"use client"
 
 import React from 'react';
 import { Card } from '@repo/design-system/components/ui/card';

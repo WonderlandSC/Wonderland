@@ -27,9 +27,9 @@ export async function POST(request: NextRequest) {
     const clerk = await clerkClient();
     const { data: users } = await clerk.users.getUserList();
     
-    // Sync each user to the database
+    // Sync each user to the database and update Clerk metadata
     for (const user of users) {
-      await database.student.upsert({
+      const student = await database.student.upsert({
         where: { id: user.id },
         update: {
           firstName: user.firstName || 'Unknown',
@@ -41,8 +41,13 @@ export async function POST(request: NextRequest) {
           firstName: user.firstName || 'Unknown',
           lastName: user.lastName || 'Unknown',
           email: user.emailAddresses[0]?.emailAddress || '',
-          role: 'student',
+          role: 'student', // Default role
         },
+      });
+
+      // Update Clerk metadata with the role
+      await clerk.users.updateUser(user.id, {
+        publicMetadata: { role: student.role }
       });
     }
 

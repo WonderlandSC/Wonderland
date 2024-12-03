@@ -1,8 +1,9 @@
 import { database } from '@repo/database';
-import { auth } from '@clerk/nextjs/server';
+import { auth, clerkClient } from '@clerk/nextjs/server';
 import { redirect } from 'next/navigation';
 import { StudentProgressDashboard } from './student-dashboard';
 import { ErrorBoundary } from '@repo/design-system/components/ui/error-boundary';
+import { TeacherDashboard } from './teacher-dashboard';
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
@@ -14,6 +15,11 @@ export default async function Dashboard() {
     if (!userId) {
       redirect('/sign-in');
     }
+
+        // Get the user from Clerk to check role
+    const clerk = await clerkClient();
+    const clerkUser = await clerk.users.getUser(userId);
+    const role = clerkUser.publicMetadata.role as string;
 
     const user = await database.student.findUnique({
       where: { id: userId },
@@ -36,7 +42,11 @@ export default async function Dashboard() {
 
     return (
       <ErrorBoundary fallback={<div>Something went wrong. Please try again.</div>}>
-        <StudentProgressDashboard userId={user.id} />
+        {role === 'teacher' ? (
+          <TeacherDashboard userId={user.id} />
+        ) : (
+          <StudentProgressDashboard userId={user.id} />
+        )}
       </ErrorBoundary>
     );
   } catch (error) {
