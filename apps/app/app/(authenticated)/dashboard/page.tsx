@@ -4,17 +4,12 @@ import { redirect } from 'next/navigation';
 import { DashboardClient } from './DashboardClient';
 import { ErrorBoundary } from '@repo/design-system/components/ui/error-boundary';
 
-export async function getServerSideProps() {
+export default async function Dashboard() {
   try {
     const { userId } = await auth();
 
     if (!userId) {
-      return {
-        redirect: {
-          destination: '/sign-in',
-          permanent: false,
-        },
-      };
+      redirect('/sign-in');
     }
 
     const user = await database.student.findUnique({
@@ -28,42 +23,26 @@ export async function getServerSideProps() {
     });
 
     if (!user) {
-      return {
-        props: {
-          error: 'Account Not Found',
-        },
-      };
+      return (
+        <div className="container mx-auto py-6">
+          <h1 className="text-2xl font-bold mb-6">Error</h1>
+          <p>Account Not Found</p>
+        </div>
+      );
     }
 
-    return {
-      props: {
-        userId: user.id,
-        initialRole: user.role,
-      },
-    };
+    return (
+      <ErrorBoundary fallback={<div>Something went wrong. Please try again.</div>}>
+        <DashboardClient userId={user.id} initialRole={user.role} />
+      </ErrorBoundary>
+    );
   } catch (error) {
     console.error('[ERROR] Dashboard page error:', error);
-    return {
-      props: {
-        error: 'Something went wrong. Please try again later.',
-      },
-    };
-  }
-}
-
-export default function Dashboard({ userId, initialRole, error }: { userId: string, initialRole: string, error: string }) {
-  if (error) {
     return (
       <div className="container mx-auto py-6">
         <h1 className="text-2xl font-bold mb-6">Error</h1>
-        <p>{error}</p>
+        <p>Something went wrong. Please try again later.</p>
       </div>
     );
   }
-
-  return (
-    <ErrorBoundary fallback={<div>Something went wrong. Please try again.</div>}>
-      <DashboardClient userId={userId} initialRole={initialRole} />
-    </ErrorBoundary>
-  );
 }
