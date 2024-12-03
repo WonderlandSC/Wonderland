@@ -51,26 +51,27 @@ export function StudentProgressDashboard({ userId }: Props) {
           return;
         }
 
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/students/${userId}/grades`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/students/${userId}/grades`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
 
-        if (!response.ok) {
-          throw new Error('Failed to fetch grades');
-        }
+    console.log('Response status:', response.status);
+    if (!response.ok) {
+      const errorData = await response.text();
+      console.error('Response error:', errorData);
+      throw new Error(`Failed to fetch grades: ${errorData}`);
+    }
 
         const data = await response.json();
         setGrades(data.grades);
-      } catch (error) {
-        console.error('[ERROR] Error fetching grades:', error);
-        setError(error instanceof Error ? error.message : 'Failed to fetch grades');
-        setGrades([]);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+
+  } catch (error) {
+    console.error('[ERROR] Full error details:', error);
+    setError(error instanceof Error ? error.message : 'Failed to fetch grades');
+  }
+};
 
     fetchGrades();
   }, [userId, getToken, isLoaded]);
