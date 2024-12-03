@@ -1,7 +1,7 @@
 import { database } from '@repo/database';
 import { auth } from '@clerk/nextjs/server';
 import { redirect } from 'next/navigation';
-import { DashboardClient } from './DashboardClient';
+import { StudentProgressDashboard } from './student-dashboard';
 import { ErrorBoundary } from '@repo/design-system/components/ui/error-boundary';
 
 // Force dynamic rendering
@@ -36,7 +36,7 @@ export default async function Dashboard() {
 
     return (
       <ErrorBoundary fallback={<div>Something went wrong. Please try again.</div>}>
-        <DashboardClient userId={user.id} initialRole={user.role} />
+        <StudentProgressDashboard userId={user.id} />
       </ErrorBoundary>
     );
   } catch (error) {

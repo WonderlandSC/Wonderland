@@ -1,61 +1,119 @@
-"use client"
+"use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@repo/design-system/components/ui/card"
-import { ScrollArea } from "@repo/design-system/components/ui/scroll-area"
-import { Tabs, TabsList, TabsTrigger } from "@repo/design-system/components/ui/tabs"
-import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from "@repo/design-system/node_modules/recharts"
-import { CircularProgress } from "@repo/design-system/components/ui/circular-progress"
-import { TrendingUp, GraduationCap, Award } from 'lucide-react'
-import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@repo/design-system/components/ui/accordion"
-import { StudentProgressDashboardSkeleton } from "@repo/design-system/components/loaders/student-progress-dashboard-skeleton"
-import { useState } from "react"
+import { useState, useEffect } from "react";
+import { useAuth } from "@clerk/nextjs";
+import { Card, CardContent, CardHeader, CardTitle } from "@repo/design-system/components/ui/card";
+import { ScrollArea } from "@repo/design-system/components/ui/scroll-area";
+import { Tabs, TabsList, TabsTrigger } from "@repo/design-system/components/ui/tabs";
+import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from "recharts";
+import { CircularProgress } from "@repo/design-system/components/ui/circular-progress";
+import { TrendingUp, GraduationCap, Award } from 'lucide-react';
+import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@repo/design-system/components/ui/accordion";
+import { StudentProgressDashboardSkeleton } from "@repo/design-system/components/loaders/student-progress-dashboard-skeleton";
 
 interface Grade {
-  id: string
-  subject: string
-  value: number
-  description?: string
-  createdAt: string
-  updatedAt: string
+  id: string;
+  subject: string;
+  value: number;
+  description?: string;
+  createdAt: string;
+  updatedAt: string;
   student: {
-    id: string
-    firstName: string
-    lastName: string
-  }
+    id: string;
+    firstName: string;
+    lastName: string;
+  };
 }
 
 interface Props {
-  grades: Grade[]
-  isLoading: boolean
+  userId: string;
 }
 
-type TimePeriod = "individual" | "week" | "month" | "quarter" | "year"
+type TimePeriod = "individual" | "week" | "month" | "quarter" | "year";
 
-export function StudentProgressDashboard({ grades, isLoading }: Props) {
+export function StudentProgressDashboard({ userId }: Props) {
+  const { getToken, isLoaded } = useAuth();
+  const [grades, setGrades] = useState<Grade[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [timePeriod, setTimePeriod] = useState<TimePeriod>("individual");
 
-  if (isLoading) {
-    return <StudentProgressDashboardSkeleton />
+  useEffect(() => {
+    if (!isLoaded) return; // Don't fetch until auth is loaded
+
+    const fetchGrades = async () => {
+      try {
+        setError(null);
+        const token = await getToken();
+
+        if (!token) {
+          setError('Authentication token not available');
+          return;
+        }
+
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/students/${userId}/grades`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch grades');
+        }
+
+        const data = await response.json();
+        setGrades(data.grades);
+      } catch (error) {
+        console.error('[ERROR] Error fetching grades:', error);
+        setError(error instanceof Error ? error.message : 'Failed to fetch grades');
+        setGrades([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchGrades();
+  }, [userId, getToken, isLoaded]);
+
+  if (!isLoaded) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return (
+      <div className="container mx-auto py-6">
+        <div className="bg-red-50 border border-red-200 rounded-md p-4">
+          <h2 className="text-red-800 font-semibold">Error</h2>
+          <p className="text-red-600">{error}</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="mt-2 text-red-700 underline"
+          >
+            Try again
+          </button>
+        </div>
+      </div>
+    );
   }
 
   const averageGrade = grades.length 
     ? (grades.reduce((sum, grade) => sum + grade.value, 0) / grades.length).toFixed(1)
-    : 0
+    : 0;
 
   const getGradeColor = (value: number) => {
-    if (value >= 90) return 'text-green-500'
-    if (value >= 70) return 'text-blue-500'
-    if (value >= 50) return 'text-yellow-500'
-    return 'text-red-500'
-  }
+    if (value >= 90) return 'text-green-500';
+    if (value >= 70) return 'text-blue-500';
+    if (value >= 50) return 'text-yellow-500';
+    return 'text-red-500';
+  };
 
   const chartData = grades.map(grade => ({
     subject: grade.subject,
     value: grade.value,
-  }))
+  }));
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6 p-4">
       <div>
         <h1 className="text-3xl font-bold">My Progress</h1>
         <p className="text-muted-foreground">Track your academic performance</p>
@@ -208,5 +266,5 @@ export function StudentProgressDashboard({ grades, isLoading }: Props) {
         </Card>
       </div>
     </div>
-  )
+  );
 }
