@@ -4,13 +4,17 @@ import { redirect } from 'next/navigation';
 import { DashboardClient } from './DashboardClient';
 import { ErrorBoundary } from '@repo/design-system/components/ui/error-boundary';
 
-export default async function Dashboard() {
+export async function getServerSideProps() {
   try {
     const { userId } = await auth();
-    console.log('[DEBUG] userId:', userId);
 
     if (!userId) {
-      redirect('/sign-in');
+      return {
+        redirect: {
+          destination: '/sign-in',
+          permanent: false,
+        },
+      };
     }
 
     const user = await database.student.findUnique({
@@ -23,29 +27,43 @@ export default async function Dashboard() {
       },
     });
 
-    console.log('[DEBUG] user:', user);
-
     if (!user) {
-      return (
-        <div className="container mx-auto py-6">
-          <h1 className="text-2xl font-bold mb-6">Account Not Found</h1>
-          <p>Your account hasn't been synchronized with the system yet. Please contact your teacher or administrator.</p>
-        </div>
-      );
+      return {
+        props: {
+          error: 'Account Not Found',
+        },
+      };
     }
 
-    return (
-      <ErrorBoundary fallback={<div>Something went wrong. Please try again.</div>}>
-        <DashboardClient userId={user.id} initialRole={user.role} />
-      </ErrorBoundary>
-    );
+    return {
+      props: {
+        userId: user.id,
+        initialRole: user.role,
+      },
+    };
   } catch (error) {
     console.error('[ERROR] Dashboard page error:', error);
+    return {
+      props: {
+        error: 'Something went wrong. Please try again later.',
+      },
+    };
+  }
+}
+
+export default function Dashboard({ userId, initialRole, error }: { userId: string, initialRole: string, error: string }) {
+  if (error) {
     return (
       <div className="container mx-auto py-6">
         <h1 className="text-2xl font-bold mb-6">Error</h1>
-        <p>Something went wrong. Please try again later.</p>
+        <p>{error}</p>
       </div>
     );
   }
+
+  return (
+    <ErrorBoundary fallback={<div>Something went wrong. Please try again.</div>}>
+      <DashboardClient userId={userId} initialRole={initialRole} />
+    </ErrorBoundary>
+  );
 }
