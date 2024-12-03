@@ -1,6 +1,5 @@
 "use client"
 
-import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card"
 import { ScrollArea } from "./ui/scroll-area"
 import { Tabs, TabsList, TabsTrigger } from "./ui/tabs"
@@ -9,7 +8,7 @@ import { CircularProgress } from "./ui/circular-progress"
 import { TrendingUp, GraduationCap, Award } from 'lucide-react'
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "./ui/accordion"
 import { StudentProgressDashboardSkeleton } from "./loaders/student-progress-dashboard-skeleton"
-import { useAuth } from '@repo/auth/node_modules/@clerk/nextjs/';
+import { useState } from "react"
 
 interface Grade {
   id: string
@@ -26,48 +25,14 @@ interface Grade {
 }
 
 interface Props {
-  studentId: string
   grades: Grade[]
   isLoading: boolean
 }
 
 type TimePeriod = "individual" | "week" | "month" | "quarter" | "year"
 
-export function StudentProgressDashboard({ studentId }: Props) {
-  const [grades, setGrades] = useState<Grade[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+export function StudentProgressDashboard({ grades, isLoading }: Props) {
   const [timePeriod, setTimePeriod] = useState<TimePeriod>("individual");
-  const { getToken } = useAuth();  // Add this hook
-
-  const fetchGrades = async () => {
-    try {
-      const token = await getToken();  // Get the auth token
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/students/${studentId}/grades`,
-        {
-          credentials: 'include',
-          headers: {
-            'Authorization': `Bearer ${token}`,  // Add the auth header
-          },
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error('Failed to fetch grades');
-      }
-      const data = await response.json();
-      setGrades(data.grades || []);
-    } catch (error) {
-      console.error('Error fetching grades:', error);
-      setGrades([]);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchGrades();
-  }, [studentId]);
 
   if (isLoading) {
     return <StudentProgressDashboardSkeleton />
@@ -201,48 +166,47 @@ export function StudentProgressDashboard({ studentId }: Props) {
             </p>
           </CardHeader>
           <CardContent>
-<ScrollArea className="h-[460px] pr-4">
-  {grades.length === 0 ? (
-    <div className="flex flex-col items-center justify-center h-full text-center">
-      <p className="text-muted-foreground">No grades available</p>
-    </div>
-  ) : (
-    <Accordion type="single" collapsible className="space-y-4"> {/* Wrap AccordionItems in Accordion */}
-      {grades.map((grade) => (
-        <AccordionItem key={grade.id} value={grade.id}> {/* Use AccordionItem */}
-          <AccordionTrigger className="flex items-center cursor-pointer"> {/* Use AccordionTrigger */}
-            <CircularProgress 
-              value={grade.value} 
-              size={40} 
-              strokeWidth={4}
-              className="mr-4"
-            />
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium leading-none truncate">
-                {grade.subject}
-              </p>
-              <p className="text-sm text-muted-foreground">
-                {new Date(grade.createdAt).toLocaleDateString()}
-              </p>
-            </div>
-            <div className={`text-lg font-bold ${getGradeColor(grade.value)}`}>
-              {grade.value}%
-            </div>
-          </AccordionTrigger>
-          <AccordionContent> {/* Use AccordionContent */}
-            <div className="mt-2 text-sm text-muted-foreground">
-              {grade.description}
-            </div>
-          </AccordionContent>
-        </AccordionItem>
-      ))}
-    </Accordion>
-  )}
-</ScrollArea>
+            <ScrollArea className="h-[460px] pr-4">
+              {grades.length === 0 ? (
+                <div className="flex flex-col items-center justify-center h-full text-center">
+                  <p className="text-muted-foreground">No grades available</p>
+                </div>
+              ) : (
+                <Accordion type="single" collapsible className="space-y-4">
+                  {grades.map((grade) => (
+                    <AccordionItem key={grade.id} value={grade.id}>
+                      <AccordionTrigger className="flex items-center cursor-pointer">
+                        <CircularProgress 
+                          value={grade.value} 
+                          size={40} 
+                          strokeWidth={4}
+                          className="mr-4"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium leading-none truncate">
+                            {grade.subject}
+                          </p>
+                          <p className="text-sm text-muted-foreground">
+                            {new Date(grade.createdAt).toLocaleDateString()}
+                          </p>
+                        </div>
+                        <div className={`text-lg font-bold ${getGradeColor(grade.value)}`}>
+                          {grade.value}%
+                        </div>
+                      </AccordionTrigger>
+                      <AccordionContent>
+                        <div className="mt-2 text-sm text-muted-foreground">
+                          {grade.description}
+                        </div>
+                      </AccordionContent>
+                    </AccordionItem>
+                  ))}
+                </Accordion>
+              )}
+            </ScrollArea>
           </CardContent>
         </Card>
       </div>
     </div>
   )
 }
-
