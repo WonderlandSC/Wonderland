@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@clerk/nextjs';
-import { StudentProgressDashboard } from '@repo/design-system/components/student-progress-dashboard';
+import { StudentProgressDashboard } from './student-dashboard';
 import { Separator } from '@repo/design-system/components/ui/separator';
 import { Breadcrumb, BreadcrumbPage, BreadcrumbItem, BreadcrumbList } from '@repo/design-system/components/ui/breadcrumb';
 import { SidebarTrigger } from '@repo/design-system/components/ui/sidebar';
