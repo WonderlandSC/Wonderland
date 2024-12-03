@@ -16,6 +16,7 @@ export async function GET(
 ) {
   try {
     const { userId } = await auth();
+    console.log('Auth userId:', userId);
     if (!userId) {
       return handleCors(Response.json({ error: 'Unauthorized' }, { status: 401 }));
     }
@@ -48,8 +49,8 @@ export async function GET(
 
     return handleCors(Response.json({ grades }));
   } catch (error) {
-    console.error('Error fetching grades:', error);
-    return handleCors(Response.json({ grades: [] }));
+    console.error('Detailed error:', error);
+    return handleCors(Response.json({ error: String(error) }, { status: 500 }));
   }
 }
 
