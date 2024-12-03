@@ -6,6 +6,8 @@ import { ScrollArea } from "@repo/design-system/components/ui/scroll-area";
 import { CircularProgress } from "@repo/design-system/components/ui/circular-progress";
 import { TrendingUp, Clock } from 'lucide-react';
 import { StudentGradesViewSkeleton } from '@repo/design-system/components/loaders/student-grades-view-skeleton';
+import { useAuth } from "@clerk/nextjs";
+
 interface Grade {
   id: string
   subject: string
@@ -27,12 +29,17 @@ interface Props {
 export default function StudentGradesView({ studentId }: Props) {
   const [grades, setGrades] = useState<Grade[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const { getToken } = useAuth();
 
   const fetchGrades = async () => {
     try {
+      const token = await getToken();
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/students/${studentId}/grades`,
         {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
           credentials: 'include',
         }
       );
