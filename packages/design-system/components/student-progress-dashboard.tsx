@@ -9,6 +9,7 @@ import { CircularProgress } from "./ui/circular-progress"
 import { TrendingUp, GraduationCap, Award } from 'lucide-react'
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "./ui/accordion"
 import { StudentProgressDashboardSkeleton } from "./loaders/student-progress-dashboard-skeleton"
+import { useAuth } from '@repo/auth/node_modules/@clerk/nextjs/';
 
 interface Grade {
   id: string
@@ -36,13 +37,18 @@ export function StudentProgressDashboard({ studentId }: Props) {
   const [grades, setGrades] = useState<Grade[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [timePeriod, setTimePeriod] = useState<TimePeriod>("individual");
+  const { getToken } = useAuth();  // Add this hook
 
   const fetchGrades = async () => {
     try {
+      const token = await getToken();  // Get the auth token
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/students/${studentId}/grades`,
         {
           credentials: 'include',
+          headers: {
+            'Authorization': `Bearer ${token}`,  // Add the auth header
+          },
         }
       );
 

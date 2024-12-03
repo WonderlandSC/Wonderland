@@ -9,6 +9,8 @@ import { Card, CardContent } from "@repo/design-system/components/ui/card";
 import { ScrollArea } from "@repo/design-system/components/ui/scroll-area";
 import { CircularProgress } from "@repo/design-system/components/ui/circular-progress";
 import { Button } from '@repo/design-system/components/ui/button';
+import { useAuth } from '@clerk/nextjs';  // Add this import
+
 interface Grade {
   id: string
   subject: string
@@ -31,6 +33,7 @@ export default function StudentClientPage({ studentId }: Props) {
   const [grades, setGrades] = useState<Grade[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const { getToken } = useAuth();  // Add this hook
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [gradeToEdit, setGradeToEdit] = useState<Grade | null>(null);
@@ -40,10 +43,14 @@ export default function StudentClientPage({ studentId }: Props) {
 
   const fetchGrades = async () => {
     try {
+      const token = await getToken();  // Get the auth token
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/students/${studentId}/grades`,
         {
           credentials: 'include',
+          headers: {
+            'Authorization': `Bearer ${token}`,  // Add the auth header
+          },
         }
       );
 
@@ -51,10 +58,10 @@ export default function StudentClientPage({ studentId }: Props) {
         throw new Error('Failed to fetch grades');
       }
       const data = await response.json();
-      setGrades(data.grades || []); // Ensure we always have an array
+      setGrades(data.grades || []);
     } catch (error) {
       console.error('Error fetching grades:', error);
-      setGrades([]); // Set empty array on error
+      setGrades([]);
     } finally {
       setIsLoading(false);
     }
@@ -70,12 +77,14 @@ export default function StudentClientPage({ studentId }: Props) {
     description?: string 
   }) => {
     try {
+      const token = await getToken();
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/students/${studentId}/grades`, // Use environment variable
+        `${process.env.NEXT_PUBLIC_API_URL}/students/${studentId}/grades`,
         {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
           },
           credentials: 'include',
           body: JSON.stringify(gradeData),
@@ -86,7 +95,6 @@ export default function StudentClientPage({ studentId }: Props) {
         throw new Error('Failed to add grade');
       }
 
-      // Refresh grades after adding new one
       fetchGrades();
     } catch (error) {
       console.error('Error adding grade:', error);
@@ -97,37 +105,38 @@ export default function StudentClientPage({ studentId }: Props) {
     return <div>Loading grades...</div>;
   }
 
-const handleEditGrade = async (gradeData: {
-  subject: string;
-  value: number;
-  description?: string;
-}) => {
-  try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/students/${studentId}/grades/${gradeToEdit?.id}`,
-      {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify(gradeData),
+  const handleEditGrade = async (gradeData: {
+    subject: string;
+    value: number;
+    description?: string;
+  }) => {
+    try {
+      const token = await getToken();
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/students/${studentId}/grades/${gradeToEdit?.id}`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+          credentials: 'include',
+          body: JSON.stringify(gradeData),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to update grade');
       }
-    );
 
-    if (!response.ok) {
-      throw new Error('Failed to update grade');
+      fetchGrades();
+      setGradeToEdit(null);
+      setIsEditModalOpen(false);
+      setSelectedGrades([]);
+    } catch (error) {
+      console.error('Error updating grade:', error);
     }
-
-    // Refresh grades after updating
-    fetchGrades();
-    setGradeToEdit(null);
-    setIsEditModalOpen(false);
-    setSelectedGrades([]);
-  } catch (error) {
-    console.error('Error updating grade:', error);
-  }
-};
+  };
 
     // Add helper function to handle edit button click
   const handleEditClick = () => {
@@ -137,31 +146,32 @@ const handleEditGrade = async (gradeData: {
   };
 
   const handleDeleteGrades = async () => {
-  try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/students/${studentId}/grades`,
-      {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include',
-        body: JSON.stringify({ gradeIds: selectedGrades }),
+    try {
+      const token = await getToken();
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/students/${studentId}/grades`,
+        {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+          credentials: 'include',
+          body: JSON.stringify({ gradeIds: selectedGrades }),
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to delete grades');
       }
-    );
 
-    if (!response.ok) {
-      throw new Error('Failed to delete grades');
+      setSelectedGrades([]);
+      fetchGrades();
+      setIsDeleteDialogOpen(false);
+    } catch (error) {
+      console.error('Error deleting grades:', error);
     }
-
-    // Refresh grades and clear selection
-    setSelectedGrades([]);
-    fetchGrades();
-    setIsDeleteDialogOpen(false);
-  } catch (error) {
-    console.error('Error deleting grades:', error);
-  }
-};
+  };
 
   const averageGrade = grades.length 
     ? (grades.reduce((sum, grade) => sum + grade.value, 0) / grades.length).toFixed(1)
