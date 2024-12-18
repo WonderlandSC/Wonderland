@@ -36,7 +36,7 @@ export default function Work() {
   ]
 
   return (
-    <section className="pt-36 pb-12 ">
+    <section className=" pb-12 ">
       <div className="container mx-auto px-4">
         <h2 className="text-3xl font-bold text-center mb-8">Как работим</h2>
         <p className="text-center text-lg mb-12 max-w-3xl mx-auto">

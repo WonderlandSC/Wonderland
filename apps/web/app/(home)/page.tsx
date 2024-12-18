@@ -12,7 +12,6 @@ import { PricingGrid } from '../../../app/app/(authenticated)/settings/pricing/p
 import Work from './components/work';
 import Levels from './components/levels';
 import Activities from './components/activities';
-import { ImagesSliderDemo } from './components/ImagesSliderDemo';
 
 const meta = {
   title: 'Wonderland',
@@ -46,7 +45,6 @@ const Home = async () => {
         </div>
       )}
       <Hero />
-      <ImagesSliderDemo />
       <Work />
       <Levels />
       <Activities />
