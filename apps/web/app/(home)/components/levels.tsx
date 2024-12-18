@@ -87,9 +87,20 @@ export default function Levels() {
         <p className="text-center text-lg mb-12 max-w-3xl mx-auto">
           Информация за нивата в Уондърленд спрямо общоевропейската езикова рамка.
         </p>
-        <div className="space-y-8">
+        <div className="gap-8 grid grid-cols-1 lg:grid-cols-2 ">
           {levels.map((level, index) => (
-            <Card key={index} className={`transition-all duration-300 hover:shadow-lg ${level.isGrowUp ? 'border-l-4 border-cyan-600' : 'border-l-4 border-purple-600'}`}>
+            <Card 
+              key={index} 
+              className={`
+                transition-all duration-300
+                hover:-translate-y-1
+                hover:shadow-[4px_4px_rgba(8,145,178,0.3),8px_8px_rgba(8,145,178,0.2),12px_12px_rgba(8,145,178,0.1)]
+                ${level.isGrowUp 
+                  ? 'border border-cyan-600 hover:shadow-[4px_4px_rgba(8,145,178,0.3),8px_8px_rgba(8,145,178,0.2),12px_12px_rgba(8,145,178,0.1)]' 
+                  : 'border border-purple-600 hover:shadow-[4px_4px_rgba(147,51,234,0.3),8px_8px_rgba(147,51,234,0.2),12px_12px_rgba(147,51,234,0.1)]'
+                }
+              `}
+            >
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-2xl font-bold">

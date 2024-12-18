@@ -44,7 +44,14 @@ export default function Work() {
         </p>
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {steps.map((step, index) => (
-            <Card key={index} className="transition-all duration-300 hover:shadow-lg">
+            <Card 
+              key={index} 
+              className={`
+                transition-all duration-300 border border-purple-600 dark:border-cyan-600
+                hover:-translate-y-1 hover:shadow-[4px_4px_rgba(147,51,234,0.3),8px_8px_rgba(147,51,234,0.2),12px_12px_rgba(147,51,234,0.1)]
+                dark:hover:shadow-[4px_4px_rgba(8,145,178,0.3),8px_8px_rgba(8,145,178,0.2),12px_12px_rgba(8,145,178,0.1)]
+              `}
+              >
               <CardHeader className="flex flex-row items-center gap-4">
                 {step.icon}
                 <CardTitle>{step.title}</CardTitle>

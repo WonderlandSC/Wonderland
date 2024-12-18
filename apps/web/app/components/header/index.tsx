@@ -13,7 +13,7 @@ import {
 import { env } from '@repo/env';
 import { Menu, MoveRight, X } from 'lucide-react';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import Image from 'next/image';
 import Logo from './logo1.svg';
@@ -21,7 +21,7 @@ import Logo from './logo1.svg';
 export const Header = () => {
   const navigationItems = [
     {
-      title: 'Home',
+      title: 'Начало',
       href: '/',
       description: '',
     },
@@ -60,6 +60,39 @@ export const Header = () => {
   ];
 
   const [isOpen, setOpen] = useState(false);
+
+  // Updated click outside handler to ignore the toggle button
+  const handleClickOutside = (event: MouseEvent) => {
+    const menu = document.getElementById('mobile-menu');
+    const menuButton = document.getElementById('mobile-menu-button');
+    if (
+      menu && 
+      !menu.contains(event.target as Node) && 
+      menuButton && 
+      !menuButton.contains(event.target as Node)
+    ) {
+      setOpen(false);
+    }
+  };
+
+  useEffect(() => {
+    // Only add the event listener if the menu is open
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => {
+        document.removeEventListener('mousedown', handleClickOutside);
+      };
+    }
+  }, [isOpen]); // Added isOpen as a dependency
+
+  const handleMenuToggle = () => {
+    setOpen(!isOpen);
+  };
+
+  const handleLinkClick = () => {
+    setOpen(false);
+  };
+  
   return (
     <header className="sticky top-0 left-0 z-40 w-full border-b bg-background">
       <div className="container relative mx-auto flex min-h-20 flex-row items-center gap-4 lg:grid lg:grid-cols-3">
@@ -127,24 +160,29 @@ export const Header = () => {
           </Link>
         </div>
         <div className="flex w-full justify-end gap-4">
-          <Button variant="ghost" className="hidden md:inline" asChild>
-            <Link href="/contact">Contact us</Link>
+          <Button variant="default" className="hidden md:inline" asChild>
+            <Link href="/contact">Контакти</Link>
           </Button>
           <div className="hidden border-r md:inline" />
-          <ModeToggle />
+          
           <Button variant="outline" asChild>
-            <Link href={`${env.NEXT_PUBLIC_APP_URL}/sign-in`}>Sign in</Link>
+            <Link href={`${env.NEXT_PUBLIC_APP_URL}/sign-in`}>Вход</Link>
           </Button>
-          <Button variant="default" asChild>
-            <Link href={`${env.NEXT_PUBLIC_APP_URL}/sign-up`}>Get started</Link>
-          </Button>
+          <ModeToggle />
         </div>
         <div className="flex w-12 shrink items-end justify-end lg:hidden">
-          <Button variant="ghost" onClick={() => setOpen(!isOpen)}>
+          <Button 
+            id="mobile-menu-button"
+            variant="ghost" 
+            onClick={handleMenuToggle}
+          >
             {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </Button>
           {isOpen && (
-            <div className="container absolute top-20 right-0 flex w-full flex-col gap-8 border-t bg-background py-4 shadow-lg">
+            <div 
+              id="mobile-menu" 
+              className="container absolute top-20 right-0 flex w-full flex-col gap-8 border-t bg-background py-4 shadow-lg"
+            >
               {navigationItems.map((item) => (
                 <div key={item.title}>
                   <div className="flex flex-col gap-2">
@@ -152,14 +190,9 @@ export const Header = () => {
                       <Link
                         href={item.href}
                         className="flex items-center justify-between"
-                        target={
-                          item.href.startsWith('http') ? '_blank' : undefined
-                        }
-                        rel={
-                          item.href.startsWith('http')
-                            ? 'noopener noreferrer'
-                            : undefined
-                        }
+                        target={item.href.startsWith('http') ? '_blank' : undefined}
+                        rel={item.href.startsWith('http') ? 'noopener noreferrer' : undefined}
+                        onClick={handleLinkClick} // Close the menu on link click
                       >
                         <span className="text-lg">{item.title}</span>
                         <MoveRight className="h-4 w-4 stroke-1 text-muted-foreground" />
@@ -172,6 +205,7 @@ export const Header = () => {
                         key={subItem.title}
                         href={subItem.href}
                         className="flex items-center justify-between"
+                        onClick={handleLinkClick} // Close the menu on sub-item link click
                       >
                         <span className="text-muted-foreground">
                           {subItem.title}
@@ -182,6 +216,7 @@ export const Header = () => {
                   </div>
                 </div>
               ))}
+              <ModeToggle />
             </div>
           )}
         </div>
