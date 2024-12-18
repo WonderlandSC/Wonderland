@@ -19,7 +19,7 @@
     "@repo/next-config": "workspace:*",
     "@repo/observability": "workspace:*",
     "@repo/payments": "workspace:*",
-    "@sentry/nextjs": "^8.38.0",
+    "@sentry/nextjs": "^8.46.0",
     "date-fns": "^4.1.0",
     "nanoid": "^5.0.9",
     "next": "15.0.3",

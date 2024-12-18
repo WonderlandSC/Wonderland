@@ -22,7 +22,7 @@
     "@repo/observability": "workspace:*",
     "@repo/seo": "workspace:*",
     "@repo/tailwind-config": "workspace:*",
-    "@sentry/nextjs": "^8.38.0",
+    "@sentry/nextjs": "^8.46.0",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
     "framer-motion": "^11.15.0",
