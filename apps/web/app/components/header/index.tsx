@@ -26,6 +26,11 @@ export const Header = () => {
       description: '',
     },
     {
+      title: 'За нас',
+      href: '/about',
+      description: '',
+    },
+    {
       title: 'Product',
       description: 'Managing a small business today is already tough.',
       items: [

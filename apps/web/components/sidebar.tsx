@@ -1,5 +1,6 @@
 import { capitalize } from '@repo/design-system/lib/utils';
 import { getTableOfContents } from 'fumadocs-core/server';
+import { TableOfContentsLink } from './table-of-contents-link';  // We'll create this next
 
 type SidebarProperties = {
   readonly date: Date;
@@ -53,12 +54,7 @@ export const Sidebar = async ({
                     paddingLeft: `${item.depth - 2}rem`,
                   }}
                 >
-                  <a
-                    href={item.url}
-                    className="line-clamp-3 flex rounded-sm text-foreground text-sm underline decoration-foreground/0 transition-colors hover:decoration-foreground/50"
-                  >
-                    {item.title}
-                  </a>
+                  <TableOfContentsLink item={item} />
                 </li>
               ))}
             </ul>
